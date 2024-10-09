@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VirusTotal URL Scanner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 10px;
+            width: 300px;
+        }
+        h1 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .result p {
+            margin: 5px 0;
+        }
+        .positive {
+            color: red;
+        }
+        .clean {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>VirusTotal URL Scanner</h1>
+
+    <!-- URL Input Form -->
+    <input type="text" id="url-input" placeholder="Enter a URL to scan">
+    <button id="scan-button">Scan URL</button>
+
+    <!-- Display the Result -->
+    <div class="result" id="result"></div>
+
+    <script>
+        // Listen for the button click
+        document.getElementById('scan-button').addEventListener('click', function () {
+            const url = document.getElementById('url-input').value;
+            
+            // Call the backend API to scan the URL
+            fetch('http://127.0.0.1:8000/adminapp/scan/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url: url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayResult(data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+
+        // Function to display scan results
+        function displayResult(data) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = ''; // Clear previous results
+
+            if (data.positives > 0) {
+                resultDiv.innerHTML = `
+                    <p class="positive">Warning! Malicious URL detected.</p>
+                    <p><strong>Positives:</strong> ${data.positives} / ${data.total}</p>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <p class="clean">The URL is clean.</p>
+                    <p><strong>Scan Date:</strong> ${data.scan_date}</p>
+                `;
+            }
+
+            resultDiv.innerHTML += `
+                <p><strong>Scan Report:</strong> <a href="${data.permalink}" target="_blank">View Report</a></p>
+            `;
+        }
+    </script>
+</body>
+</html>

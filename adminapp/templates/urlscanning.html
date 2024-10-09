@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Scanning</title>
+</head>
+<body>
+    <h1>Scan a URL</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        <label for="url">Enter URL:</label>
+        <input type="text" id="url" name="url" required>
+        <button type="submit">Scan URL</button>
+    </form>
+
+    {% if report %}
+        <h2>Scan Report</h2>
+        <pre>{{ report }}</pre>
+    {% elif error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    
+</body>
+</html>

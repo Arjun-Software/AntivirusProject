@@ -1,0 +1,19 @@
+
+{
+  "manifest_version": 3,
+  "name": "Auto File Virus Scanner",
+  "description": "Automatically scan downloaded files for viruses using VirusTotal API",
+  "version": "1.0",
+  "permissions": ["downloads", "storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "host_permissions": [
+    "https://www.virustotal.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  }
+  
+}

@@ -1,0 +1,30 @@
+<!-- monitoring/templates/monitoring/system_status.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>System Status</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        table, th, td { border: 1px solid black; padding: 8px; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>System Status Dashboard</h1>
+    <table>
+        <tr><th>Metric</th><th>Value</th></tr>
+        <tr><td>CPU Usage</td><td>{{ system_info.cpu_percent }}%</td></tr>
+        <tr><td>Total Memory</td><td>{{ system_info.total_memory|floatformat:2 }} bytes</td></tr>
+        <tr><td>Used Memory</td><td>{{ system_info.used_memory|floatformat:2 }} bytes</td></tr>
+        <tr><td>Memory Usage</td><td>{{ system_info.memory_percent }}%</td></tr>
+        <tr><td>Total Disk Space</td><td>{{ system_info.total_disk|floatformat:2 }} bytes</td></tr>
+        <tr><td>Used Disk Space</td><td>{{ system_info.used_disk|floatformat:2 }} bytes</td></tr>
+        <tr><td>Disk Usage</td><td>{{ system_info.disk_percent }}%</td></tr>
+        <tr><td>System Boot Time</td><td>{{ system_info.boot_time }}</td></tr>
+        <tr><td>Operating System</td><td>{{ system_info.platform }} {{ system_info.platform_release }}</td></tr>
+        <tr><td>OS Version</td><td>{{ system_info.platform_version }}</td></tr>
+    </table>
+</body>
+</html>

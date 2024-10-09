@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USB Scanner - Real-time Scan Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #191932;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .scan-button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .scan-button:hover {
+            background-color: #218838;
+        }
+        #result {
+            margin-top: 20px;
+            background: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            height: 300px;
+            overflow-y: scroll;
+            white-space: pre-wrap;  /* Preserve line breaks */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>USB File Scanner</h2>
+    <button class="scan-button" onclick="startScan()">Scan USB Files</button>
+    
+    <div id="result">Scan results will appear here...</div>
+</div>
+
+<script>
+    function startScan() {
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = "Starting scan...\n";
+
+        // Send the AJAX request
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/adminapp/USBscanner/', true);
+        xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+
+        // Process the streaming response
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.LOADING || xhr.readyState === XMLHttpRequest.DONE) {
+                resultDiv.innerHTML += xhr.responseText;  // Append the new chunk of data
+                resultDiv.scrollTop = resultDiv.scrollHeight;  // Auto-scroll to the bottom
+            }
+        };
+
+        xhr.send();
+    }
+
+    // Function to get CSRF token from the cookie
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!-- templates/firewall.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firewall Management</title>
+</head>
+<body>
+    <h1>Manage Firewall Rules</h1>
+    
+    <form method="POST" action="{% url 'configure_firewall' %}">
+        {% csrf_token %}
+        <label for="program_path">Program Path:</label>
+        <input type="text" id="program_path" name="program_path" required>
+        <br><br>
+
+        <label for="action">Action:</label>
+        <select id="action" name="action">
+            <option value="allow">Allow</option>
+            <option value="block">Block</option>
+        </select>
+        <br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
+
+    <h2>Blocked Programs</h2>
+    <ul>
+        {% if blocked_programs %}
+            {% for program in blocked_programs %}
+                <li>{{ program.program_path }} (Blocked at: {{ program.blocked_at }})</li>
+            {% endfor %}
+        {% else %}
+            <li>No blocked programs.</li>
+        {% endif %}
+    </ul>
+</body>
+</html>

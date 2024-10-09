@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Results</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        body {
+            background-color: #191932;
+            color: #ffffff;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .container {
+            margin-top: 50px;
+            background-color: #1c1c30;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .scan-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .file-info {
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .scan-results-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .scan-results-table th, .scan-results-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .scan-results-table th {
+            background-color: #282852;
+            color: white;
+        }
+
+        .scan-results-table td {
+            background-color: #1c1c30;
+        }
+
+        .status-undetected {
+            color: #00ff00; /* Green for Undetected */
+        }
+
+        .status-detected {
+            color: #ff5252; /* Red for Detected */
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1 class="scan-header">File Scan Report</h1>
+
+        <div class="file-info">
+            <p><strong>File Name:</strong> {{ file_info.file_name }}</p>
+            <p><strong>File Size:</strong> {{ file_info.size }} KB</p>
+            <p><strong>Scan Date:</strong> {{ file_info.scan_date }}</p>
+        </div>
+
+        <table class="scan-results-table">
+            <thead>
+                <tr>
+                    <th>Antivirus Vendor</th>
+                    <th>Status</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in scan_data %}
+                <tr>
+                    <td>{{ result.vendor }}</td>
+                    <td class="status-{{ result.status|lower }}">{{ result.status }}</td>
+                    <td>{{ result.result }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</body>
+
+</html>

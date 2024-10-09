@@ -25,9 +25,16 @@ SECRET_KEY = 'django-insecure-q%otm8@ar8xh_@v1g+4=cas644ziugfer2n0+&p99gwfqljud5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
+CORS_ALLOWED_ORIGINS = [
+    'chrome-extension://ebbgpdnmnmaonbepjbpahfakmfbcfooc',  # Your extension's origin
+    'http://127.0.0.1:8000',  # Allow local access too
+]
+from corsheaders.defaults import default_headers
 
-
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'x-apikey',  # Add the custom 'x-apikey' header here
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -37,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'adminapp',
     'Authapp',
     'rest_framework'
@@ -45,6 +53,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -83,11 +92,22 @@ WSGI_APPLICATION = 'Antivirusproject.wsgi.application'
 #     }
 # }
 
-
+DATABASES = {
+    'default': {
+        'ENGINE': 'djongo',
+        'NAME': 'upgov',  # Database name mongodb+srv://admin:<db_password>@cluster0.3krnn.mongodb.net/
+        'CLIENT': {
+            'host': 'mongodb+srv://admin:admin123@cluster0.3krnn.mongodb.net/AdminDB?retryWrites=true&w=majority',
+            'username': 'admin',
+            'password': 'admin123',
+        }
+    }
+}
+VIRUSTOTAL_API_KEY = "671dfacd7749ba03ecb03588d14fb56ffba18a33473bf9c6f416113e939d3850"
 
 from pymongo import MongoClient
 client = MongoClient("mongodb+srv://admin:admin123@cluster0.3krnn.mongodb.net/AdminDB?retryWrites=true&w=majority")
-admindb = client.Detectivemngsystem
+admindb = client.upgov
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -129,3 +149,15 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# settings.py
+
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+QUARANTINE_DIR = os.path.join(BASE_DIR, 'quarantine')
+
+# Create the directory if it doesn't exist
+if not os.path.exists(QUARANTINE_DIR):
+    os.makedirs(QUARANTINE_DIR)

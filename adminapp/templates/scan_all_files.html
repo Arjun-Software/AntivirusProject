@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan All Files</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .output {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>System File Scanner</h1>
+        <form id="scanForm" method="POST">
+            <label for="directory">Enter Directory (Leave empty for root):</label><br>
+            <input type="text" id="directory" name="directory" placeholder="e.g., /home/user/Documents"><br><br>
+            <button type="button" onclick="scanFiles()">Scan All Files</button>
+        </form>
+        <div class="output" id="scanResults">
+            <!-- Scan results will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        function scanFiles() {
+            const form = document.getElementById('scanForm');
+            const formData = new FormData(form);
+            fetch("{% url 'scan_system_files' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                let output = "<h2>Scan Results:</h2>";
+                data.forEach(result => {
+                    if (result.error) {
+                        output += `<p style="color: red;">${result.error}</p>`;
+                    } else {
+                        output += `<p>File: ${result.resource} | Positives: ${result.positives} / ${result.total}</p>`;
+                    }
+                });
+                document.getElementById('scanResults').innerHTML = output;
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

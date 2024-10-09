@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quarantine File Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #191932;
+            color: #fff;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #43C728;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .container {
+            background-color: #1c1c30;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            margin-bottom: 40px;
+        }
+
+        .container h2 {
+            color: #43C728;
+            margin-bottom: 20px;
+        }
+
+        .result-container {
+            background-color: #f8f9fa;
+            color: #000;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .file-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .file-list li {
+            background-color: #f8f9fa;
+            color: #000;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Quarantine File Management</h1>
+
+    <!-- Scan File Section -->
+    <div class="container">
+        <h2>Scan File and Quarantine</h2>
+        <form id="file-form">
+            <div class="mb-3">
+                <label for="file" class="form-label">Choose a file to scan:</label>
+                <input type="file" class="form-control" id="file" name="file" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Scan File</button>
+        </form>
+        <div id="scan-result" class="result-container mt-4"></div>
+    </div>
+
+    <!-- List Quarantined Files Section -->
+    <div class="container">
+        <h2>Quarantined Files</h2>
+<ul>
+    {% for file in quarantined_files %}
+        <li>{{ file }}</li>
+    {% endfor %}
+</ul>
+    </div>
+
+    <!-- Manage Quarantined Files Section -->
+    <div class="container">
+        <h2>Manage Quarantined Files</h2>
+        <form id="manage-form">
+            <div class="mb-3">
+                <label for="file_name" class="form-label">File Name:</label>
+                <input type="text" class="form-control" id="file_name" name="file_name" placeholder="Enter the quarantined file name" required>
+            </div>
+            <div class="mb-3">
+                <label for="action" class="form-label">Action:</label>
+                <select id="action" name="action" class="form-control">
+                    <option value="restore">Restore</option>
+                    <option value="delete">Delete</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+        <div id="manage-result" class="result-container mt-4"></div>
+    </div>
+
+    <script>
+        // File Scan and Quarantine
+        document.getElementById('file-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('/adminapp/filescan/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('scan-result').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById('scan-result').textContent = 'Error scanning file.';
+            });
+        });
+
+        // List Quarantined Files
+        document.getElementById('list-quarantine').addEventListener('click', function () {
+            fetch('/adminapp/quarantine/list/')
+                .then(response => response.json())
+                .then(data => {
+                    const list = document.getElementById('quarantine-list');
+                    list.innerHTML = ''; // Clear previous list
+                    data.quarantined_files.forEach(file => {
+                        const li = document.createElement('li');
+                        li.textContent = file;
+                        list.appendChild(li);
+                    });
+                })
+                .catch(error => {
+                    document.getElementById('quarantine-list').textContent = 'Error fetching quarantined files.';
+                });
+        });
+
+        // Manage Quarantined Files (Restore/Delete)
+        document.getElementById('manage-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('/adminapp/quarantine/manage/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('manage-result').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById('manage-result').textContent = 'Error managing quarantined file.';
+            });
+        });
+    </script>
+
+</body>
+
+</html>

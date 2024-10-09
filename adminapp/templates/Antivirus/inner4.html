@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Booster - VirusTotal Scan</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #191932;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="file"],
+        .form-group button {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .form-group button {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #218838;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            display: none;
+        }
+        .result ul {
+            list-style: none;
+            padding: 0;
+        }
+        .result ul li {
+            padding: 8px;
+            border-bottom: 1px solid #ccc;
+        }
+        .result ul li:last-child {
+            border-bottom: none;
+        }
+        .status-completed {
+            color: green;
+        }
+        .status-malicious {
+            color: red;
+        }
+        .status-suspicious {
+            color: orange;
+        }
+        .status-undetected {
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Game Booster - VirusTotal Scan</h2>
+    
+    <form id="scanForm" action="/adminapp/gamespeedAPI/" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="fileInput">Upload Game File (Optional):</label>
+            <input type="file" id="fileInput" name="file">
+        </div>
+
+        <div class="form-group">
+            <button id="scanButton" type="button" onclick="submitForm()">Scan Now</button>
+        </div>
+    </form>
+
+    <div class="result" id="result">
+        <h3>Scan Result</h3>
+        <ul id="resultList">
+            <!-- Scan results will be dynamically inserted here -->
+        </ul>
+    </div>
+</div>
+
+<script>
+    async function submitForm() {
+        const formData = new FormData();
+        const fileInput = document.getElementById('fileInput').files[0];
+        const scanButton = document.getElementById('scanButton');
+
+        if (fileInput) {
+            formData.append('file', fileInput);
+        } else {
+            alert('Please provide a game file to scan.');
+            return;
+        }
+
+        // Disable the button and show loading text
+        scanButton.disabled = true;
+        scanButton.textContent = 'Scanning...';
+
+        try {
+            const response = await fetch('/adminapp/gamespeedAPI/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')  // Add CSRF token for POST requests
+                }
+            });
+
+            const result = await response.json();
+            
+            document.getElementById('result').style.display = 'block';
+            displayScanResult(result.result.stats);
+        } catch (error) {
+            alert('An error occurred while scanning. Please try again.');
+        } finally {
+            // Re-enable the button and reset the text
+            scanButton.disabled = false;
+            scanButton.textContent = 'Scan Now';
+        }
+    }
+
+    function displayScanResult(stats) {
+        const resultList = document.getElementById('resultList');
+        resultList.innerHTML = '';  // Clear previous results
+
+        // Add each result to the list
+        resultList.innerHTML += `<li class="status-completed">Status: Completed</li>`;
+        resultList.innerHTML += `<li class="status-malicious">Malicious: ${stats.malicious}</li>`;
+        resultList.innerHTML += `<li class="status-suspicious">Suspicious: ${stats.suspicious}</li>`;
+        resultList.innerHTML += `<li class="status-undetected">Undetected: ${stats.undetected}</li>`;
+        resultList.innerHTML += `<li class="status-harmless">Harmless: ${stats.harmless}</li>`;
+        resultList.innerHTML += `<li class="status-timeout">Timeout: ${stats.timeout}</li>`;
+        resultList.innerHTML += `<li class="status-unsupported">Type Unsupported: ${stats['type-unsupported']}</li>`;
+    }
+
+    // Function to get CSRF token from the cookie
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+
+</body>
+</html>

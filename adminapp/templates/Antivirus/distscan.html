@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disk Scanner</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        h1 {
+            color: #444;
+            margin-top: 20px;
+        }
+        #startScanButton {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        #startScanButton:hover {
+            background-color: #45a049;
+        }
+        #scanOutput {
+            width: 80%;
+            height: 300px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: left;
+            margin: 0 auto;
+            padding: 15px;
+            overflow-y: scroll;
+            white-space: pre-wrap;
+        }
+        .progress-bar {
+            width: 80%;
+            background-color: #f3f3f3;
+            border-radius: 4px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        .progress {
+            width: 0%;
+            height: 20px;
+            background-color: #4CAF50;
+            line-height: 20px;
+            color: white;
+            text-align: center;
+        }
+        .scan-complete {
+            color: green;
+            font-weight: bold;
+        }
+        .scan-error {
+            color: red;
+        }
+        .scanning-file {
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Disk Scanner</h1>
+    
+    <button id="startScanButton" onclick="startScan()">Start Disk Scan</button>
+
+    <div class="progress-bar">
+        <div id="progress" class="progress">0%</div>
+    </div>
+
+    <pre id="scanOutput"></pre>
+
+    <script>
+        function startScan() {
+            $('#scanOutput').text("");  // Clear previous output
+            $('#progress').css('width', '0%').text('0%');  // Reset progress bar
+
+            $.ajax({
+                url: '/adminapp/scan_disk/',  // URL for the disk scanner view
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                xhrFields: {
+                    onprogress: function(e) {
+                        const output = e.currentTarget.responseText.split('\n');
+                        const fileCount = output.length - 1;  // Adjust based on actual line count
+                        const progressPercentage = Math.min((fileCount / 100) * 100, 100);
+
+                        $('#progress').css('width', progressPercentage + '%').text(Math.round(progressPercentage) + '%');
+
+                        output.forEach(function(line) {
+                            if (line.includes("Scanning")) {
+                                $('#scanOutput').append(`<span class="scanning-file">${line}</span><br>`);
+                            } else if (line.includes("completed")) {
+                                $('#scanOutput').append(`<span class="scan-complete">${line}</span><br>`);
+                            } else if (line.includes("Error") || line.includes("Skipping")) {
+                                $('#scanOutput').append(`<span class="scan-error">${line}</span><br>`);
+                            } else {
+                                $('#scanOutput').append(line + '<br>');
+                            }
+                        });
+
+                        $('#scanOutput').scrollTop($('#scanOutput')[0].scrollHeight);  // Scroll to bottom
+                    }
+                },
+                success: function(data) {
+                    console.log('Scan completed:', data);
+                },
+                error: function(error) {
+                    console.error('Error during scan:', error);
+                    $('#scanOutput').append(`<span class="scan-error">Scan failed. Please try again later.</span><br>`);
+                }
+            });
+        }
+
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

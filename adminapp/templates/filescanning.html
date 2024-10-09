@@ -1,0 +1,65 @@
+<!-- templates/urlscanner/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VirusTotal File & URL Scanner</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        input, button { padding: 10px; margin: 10px 0; }
+        .result { margin-top: 20px; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Scan URL or File with VirusTotal</h1>
+    
+    <!-- URL Scan Form -->
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="url" placeholder="Enter a URL to scan">
+        <button type="submit">Scan URL</button>
+    </form>
+
+    <!-- File Upload Form -->
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="file" required>
+        <button type="submit">Scan File</button>
+    </form>
+
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+
+    {% if report %}
+        <h2>Scan Report</h2>
+        {{report}}
+        <p>Positives: {{ report.positives }} / {{ report.total }}</p>
+        <a href="{{ report.permalink }}" target="_blank">View Full Report</a>
+    {% endif %}
+
+<script>
+    document.getElementById('file-input').addEventListener('change', function() {
+        const file = document.getElementById('file-input').files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+    
+        fetch('http://localhost:8000/adminapp/scan-file/', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('File Scan Result:', data);
+            // Handle the response and display results in the popup
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    });
+</script>
+</body>
+</html>

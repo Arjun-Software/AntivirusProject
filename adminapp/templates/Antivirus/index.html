@@ -1,0 +1,445 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anti-Malware UI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f7;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .custom-card {
+            background-color: #0a3b52;
+            border-radius: 10px;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .status {
+            /* display: flex; */
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .status-item {
+            background-color: #004b68;
+            border-radius: 8px;
+            padding: 20px;
+            /* width: 16%; */
+            text-align: center;
+            color: white;
+            height: 145px;
+        }
+
+        .status-item i {
+            font-size: 30px;
+        }
+
+        .status-item h4 {
+            margin-top: 10px;
+            font-size: 2rem;
+            color: #ff4f4f;
+        }
+
+        .status-item small {
+            color: #dcdcdc;
+        }
+
+        .threat-level {
+            height: 12px;
+            width: 20%;
+            background: linear-gradient(to right, #ff4f4f, #f7b731);
+            border-radius: 5px;
+        }
+
+        .threat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+        }
+
+        .threat-item span {
+            color: black;
+        }
+
+        .fix-button {
+            background:  linear-gradient(to right, #ff4f4f, #f7b731);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .fix-button:hover {
+            background:  linear-gradient(to right, #ff4f4f, #f7b731);
+        }
+
+        .icon {
+            font-size: 25px;
+          color: #01e80e;
+        }
+
+        .header-icon {
+            font-size: 30px;
+        }
+
+        .header-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Navbar */
+        .navbar-custom {
+            background-color: #0a3b52;
+            color: #fff;
+            padding: 10px;
+        }
+
+        .navbar-custom .navbar-brand {
+            color: white;
+        }
+
+        /* Footer */
+        .footer-custom {
+            background-color: #0a3b52;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        /* Adjusting the layout */
+        .status-item {
+            min-height: 120px;
+            flex-grow: 1;
+            margin-right: 15px;
+        }
+
+        .status-item:last-child {
+            margin-right: 0;
+        }
+
+        small {
+            font-size: 25px !important;
+            font-weight: 600;
+        }
+        .top-banner{
+            background-color: #fff;
+            width: 100%;
+            height: 600px;
+        }
+        .banner {
+            background: url("banner.jpeg");
+            width: 100%;
+            height: 600px;
+            background-repeat: no-repeat;
+            background-size: cover;
+           
+        }
+       /* login page css */
+       
+       * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+      
+
+        .login-container {
+            /* position: absolute; */
+            /* top: 50%;
+            left: 50%; */
+            /* transform: translate(-50%, -50%); */
+            /* background: #fff; */
+            width: 450px;
+            height: auto;
+            border-radius: 20px;
+            /* box-shadow: 0 10px rgb(110, 110, 110, 0.2); */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box,
+        .login-box button {
+            display: flex;
+            align-items: center;
+        }
+
+        .login-box {
+            width: 300px;
+            height: auto;
+            flex-direction: column;
+            justify-content: space-evenly;
+        }
+
+        .login-box button {
+            width: 360px;
+            height: 40px;
+            background-color: #fff;
+            outline: none;
+            font-weight: bold;
+            border: 1px solid rgb(211, 210, 210);
+            border-radius: 20px;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .login-box-two input {
+            position: relative;
+            width: 360px;
+            height: 55px;
+            outline: none;
+            border: 1px solid rgb(211, 210, 210);
+            border-radius: 4px;
+            padding-left: 10px;
+        }
+
+        .login-box-two input::placeholder {
+            font-size: 1rem;
+        }
+
+        .login-box-two input:focus {
+            border: 1px solid #00acee;
+        }
+
+        .login-box-two .login-next-btn {
+            background:  linear-gradient(to right, #ff4f4f, #f7b731);
+            color: #fff;
+            margin-top: 50px !important;
+        }
+
+        .login-container p {
+            font-size: 0.9rem;
+            color: rgb(138, 136, 136);
+            margin-top: 10px;
+        }
+
+        .login-container p a {
+            text-decoration: none;
+            color: #00acee;
+        }
+        a{
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-custom">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#"><i class="fa fa-shield-alt"></i> Anti-Malware</a>
+            <div>
+                <!-- <button class="fix-button rounded-5" style="width: 100%;" data-bs-toggle="modal" data-bs-target="#myModal">Login</button> -->
+            </div>
+        </div>
+    </nav>
+    <!-- <div class="top-banner">
+        <section class="banner">
+
+        </section>
+    </div> -->
+   
+    <div class="container my-5">
+        <div class="custom-card p-4">
+            <!-- Header Section -->
+            <div class="header-section">
+                <h2>Outbyte Anti-Malware</h2>
+                <i class="fa fa-shield-alt header-icon"></i>
+            </div>
+
+            <!-- Status Section -->
+            <div class="status mt-4">
+                <div class="row">
+                    <a href="/adminapp/disk-scanner/" class="status-item col-sm-2 mt-3">
+                        <i class="fa fa-tasks icon"></i>
+                        <h4></h4>
+                        <small>Drive Clean</small>
+                        
+                    </a>
+                    <a href="/adminapp/Diskfrigmentation" class="status-item col-sm-2 mt-3">
+                        <i class="fa fa-calendar-alt icon"></i>
+                        <h4></h4>
+                        <small>Disk Defragmentation</small>
+                        
+                    </a>
+                    <a href="/adminapp/Diskcleanup/" class="status-item col-sm-2 mt-3">
+                        <i class="fa fa-folder icon"></i>
+                        <h4></h4>
+                        <small>Disk Cleanup Suggestions</small>
+                        
+                    </a>
+          
+             
+                    <a href="/adminapp/powersaverAPI/" class="status-item col-sm-2 mt-3">
+                        <i class="fa fa-list icon"></i>
+                        <h4></h4>
+                        <small>Power Saver
+                        </small>
+                        
+                    </a>
+                    <a href="/adminapp/gamespeedAPI/" class="status-item col-sm-2 mt-3">
+                        <i class="fa fa-cookie icon"></i>
+                        <h4></h4>
+                        <small>Game Speed Optimization</small>
+                        
+                    </a>
+                  
+                </div>
+                <div class="row">
+                    <a href="/adminapp/filescanAPI/" class="status-item col-sm-2 mt-3">
+                        <i class="fa fa-th-list icon"></i>
+                        <h4></h4>
+                        <small>Scan All Files</small>
+                        
+                    </a>
+                    <a href="/adminapp/scanUrlAPI/" class="status-item col-sm-2 mt-3">
+                        <i class="fa fa-th-list icon"></i>
+                        <h4></h4>
+                        <small>URL Scan</small>
+                    </a>
+                    <a href="/adminapp/quarantine/list/" class="status-item col-sm-2 mt-3">
+                        <i class="fa fa-th-list icon"></i>
+                        <h4></h4>
+                        <small>Quarantine</small>
+                        
+                    </a>
+                    <a href="/inner8.html" class="status-item col-sm-2 mt-3">
+                        <i class="fa fa-th-list icon"></i>
+                        <h4></h4>
+                        <small>Full Virus Scan</small>
+                        
+                    </a>
+                    <a href="/adminapp/system-status/" class="status-item col-sm-2 mt-3">
+                        <i class="fa fa-th-list icon"></i>
+                        <h4></h4>
+                        <small>System Configuration</small>
+                        
+                    </a>
+                    <a href="/adminapp/firewall/" class="status-item col-sm-2 mt-3">
+                        <i class="fa fa-th-list icon"></i>
+                        <h4></h4>
+                        <small>Firewall</small>
+                        
+                    </a>
+                    <a href="/inner11.html" class="status-item col-sm-2 mt-3">
+                        <i class="fa fa-th-list icon"></i>
+                        <h4></h4>
+                        <small>Safety & Security</small>
+                        
+                    </a>
+                    <a href="/adminapp/USBscanner/" class="status-item col-sm-2 mt-3">
+                        <i class="fa fa-th-list icon"></i>
+                        <h4></h4>
+                        <small>USB Scanner
+                        </small>
+                        
+                    </a>
+                    <a href="/inner13.html" class="status-item col-sm-2 mt-3">
+                        <i class="fa fa-th-list icon"></i>
+                        <h4></h4>
+                        <small>Browser Safety</small>
+                        
+                    </a>
+                    <a href="/adminapp/get_install_app/" class="status-item col-sm-2 mt-3">
+                        <i class="fa fa-th-list icon"></i>
+                        <h4></h4>
+                        <small>App Manager</small>
+                        
+                    </a>
+                 
+                </div>
+            </div>
+        </div>
+        <!-- Threats List -->
+        <div class="mt-4">
+            <div class="d-flex" style="justify-content: space-between;">
+                <h5>Files</h5>
+                <h5 class="">Threat Level</h5>
+            </div>
+
+            <div class="threat-item">
+                <span>c:\Program Files\McAfee Security Scan...</span>
+                
+            </div>
+            <div class="threat-item">
+                <span>c:\Windows\Microsoft.NET\Framework...</span>
+                
+            </div>
+            <div class="threat-item">
+                <span>c:\Windows\diagnostics\index\DeviceDiagnostic.xml</span>
+                
+            </div>
+        </div>
+
+        <!-- Fix Button -->
+        <div class="mt-4 text-end">
+            <button class="fix-button">Fix Issues</button>
+        </div>
+
+    </div>
+    <div class="modal" id="myModal">
+        <div class="modal-dialog">
+          <div class="modal-content">
+      
+            <!-- Modal Header -->
+            <div class="modal-header border-0">
+          
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+      
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div class="login-container">
+                    <h1>Login</h1>
+                    <div class="login-box login-box-two">
+                        <form>
+                            <div>
+                                <label for="">UserName :</label>
+                                <input type="text" placeholder="username" />
+                            </div>
+                            <div class="" style="margin-top: 12px;">
+                                <label for="" class="">Password :</label>
+                                <input type="text" placeholder="Password" />
+                            </div>
+            
+                        </form>
+                        <button class="login-next-btn" style="margin-top: 20px;">Next</button>
+            
+                    </div>
+                    <p>Don't have an account? <a href="#">Sign Up</a></p>
+                </div>
+            </div>
+      
+       
+      
+          </div>
+        </div>
+      </div>
+    <!-- Footer -->
+    <footer class="footer-custom">
+        <p>© 2024 Anti-Malware. All Rights Reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
