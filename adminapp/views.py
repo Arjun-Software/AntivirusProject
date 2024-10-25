@@ -24,7 +24,7 @@ def response_messages(response_message, response_data,response_status):
     return final_response_message
 
 
-AUTH_SERVER = "http://127.0.0.1:8000/"
+AUTH_SERVER = "http://142.93.247.109:10002/"
 def dectoken(token):
     auth_server_response = requests.get(AUTH_SERVER+"Authapp/decrypt/?id="+ token, verify=False)
     gettoken = auth_server_response.json()                  
@@ -982,7 +982,7 @@ def list_usb_files():
 
 def scan_file_with_virustotal(file_path):
     url = 'https://www.virustotal.com/api/v3/files'
-    
+    print("-----",file_path)
     # Upload the file to VirusTotal
     with open(file_path, 'rb') as file:
         headers = {
@@ -1245,3 +1245,241 @@ def configure_firewall(request):
 #         return render(request, 'Antivirus/firewall.html', {'message': message})
 
 #     return render(request, 'Antivirus/firewall.html')
+
+
+# import elevate
+
+# def disable_windows_defender():
+#     try:
+#         # Request elevated permissions
+#         elevate.elevate()  # This will prompt for admin access
+
+#         # Disable Windows Defender via Registry (Admin access needed)
+#         subprocess.run([
+#             "reg", "add", "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender", 
+#             "/v", "DisableAntiSpyware", "/t", "REG_DWORD", "/d", "1", "/f"
+#         ], check=True)
+#         print("Windows Defender disabled.")
+#     except subprocess.CalledProcessError as e:
+#         print(f"Error occurred: {e}")
+
+# disable_windows_defender()
+
+
+import subprocess
+from django.http import HttpResponse
+
+def defenderscan_file(request):
+    if request.method == 'GET':
+        file_path = "E:\\Arjun\\scan\\virrus_scan.txt"  # E:\Arjun\Antivirusproject
+        command = [
+            "C:\\Program Files\\Windows Defender\\MpCmdRun.exe",  # Use verified path
+            "-Scan",
+            "-ScanType", "3",
+            "-File", file_path
+        ]
+        try:
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            stdout, stderr = process.communicate()
+            output = stdout if stdout else stderr  # Capture output or error
+        except FileNotFoundError:
+            output = "MpCmdRun.exe not found. Please verify the path."
+        return HttpResponse(output, content_type="text/plain")
+
+
+import win32evtlog
+
+def fetch_defender_events():
+    log_type = 'Microsoft-Windows-Windows Defender/Operational'
+    server = 'localhost'  # Local machine
+    flags = win32evtlog.EVENTLOG_FORWARDS_READ | win32evtlog.EVENTLOG_SEQUENTIAL_READ
+    handle = win32evtlog.OpenEventLog(server, log_type)
+    events = win32evtlog.ReadEventLog(handle, flags, 0)
+    print("====",events)
+    return events
+
+import subprocess
+
+def check_defender_status():
+    command = ["powershell", "Get-MpComputerStatus"]
+    result = subprocess.run(command, capture_output=True, text=True)
+    print("--------",result)
+    return result.stdout
+def enable_real_time_monitoring():
+    command = ["powershell", "-Command", "Set-MpPreference -DisableRealtimeMonitoring $false"]
+    result = subprocess.run(command, capture_output=True, text=True)
+    print("----",result)
+    return result.stdout  # or handle output/error as needed
+
+from django.views import View
+
+from django.http import JsonResponse
+from rest_framework.views import APIView
+import subprocess
+
+
+def _execute_powershell_command(self, command):
+    """Executes a PowerShell command and returns the output."""
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, shell=True)
+        if result.returncode != 0:
+            return {"error": f"Command failed with error: {result.stderr.strip()}"}
+        return {"output": result.stdout.strip()}
+    except Exception as e:
+        return {"error": f"Internal Server Error: {str(e)}"}
+
+class DefenderAPI(APIView):
+
+    def _execute_powershell_command(self, command):
+        """Executes a PowerShell command and returns the output."""
+        try:
+            result = subprocess.run(command, capture_output=True, text=True, shell=True)
+            if result.returncode != 0:
+                return {"error": f"Command failed with error: {result.stderr.strip()}"}
+            return {"output": result.stdout.strip()}
+        except Exception as e:
+            return {"error": f"Internal Server Error: {str(e)}"}
+
+    def post(self, request):
+        try:
+            # token = request.META.get('HTTP_AUTHORIZATION')
+            userId = "123"#dectoken(token)
+            if not userId:
+                return JsonResponse({'message': "Your token has expired"}, status=401)
+
+            action = request.data.get('action')
+            print("========",action)
+            if action == 'enable_realtime':
+                command = [
+                    "powershell", "-Command", 
+                    "try { Set-MpPreference -DisableRealtimeMonitoring $false } catch { $_ | Out-String }"
+                ]
+                response = self._execute_powershell_command(command)
+                return JsonResponse(response, safe=False, status=200)
+
+            elif action == 'check_status':
+                command = ["powershell", "-Command", "Get-MpComputerStatus"]
+                response = self._execute_powershell_command(command)
+                return JsonResponse(response, safe=False, status=200)
+
+            elif action == 'scan_file':
+                file_path = request.data.get('file_path')
+                if not file_path:
+                    return JsonResponse({'message': "File path is required"}, status=400)
+
+                command = [
+                    "C:\\Program Files\\Windows Defender\\MpCmdRun.exe",
+                    "-Scan", 
+                    "-ScanType", "3",  # Full scan
+                    "-File", file_path
+                ]
+                response = self._execute_powershell_command(command)
+                return JsonResponse(response, safe=False, status=200)
+
+            else:
+                return JsonResponse({'message': 'Invalid action'}, status=400)
+
+        except Exception as e:
+            return JsonResponse({'message': f'Internal Server Error: {str(e)}'}, status=500)
+
+    def get(self, request):
+        return JsonResponse({'message': 'Use POST method to interact with Defender functionalities.'}, status=405)
+
+import psutil
+import socket
+
+def get_browser_connections():
+    # Get all active connections
+    connections = psutil.net_connections(kind='inet')
+    urls = []
+
+    for conn in connections:
+        # Check if the connection is on port 80 (HTTP) or 443 (HTTPS)
+        if conn:  # Check ports only for HTTP and HTTPS
+            try:
+                # Get the process name
+                process = psutil.Process(conn.pid)
+                process_name = process.name()
+                # Filter for common browser processes
+                if process_name.lower() in ["chrome.exe", "firefox.exe", "msedge.exe", "safari.exe"]:
+                    remote_address = conn.raddr
+                    if remote_address:
+                        # Attempt to resolve the remote address to a URL
+                        try:
+                            # Get the domain name from the IP address
+                            domain_name = socket.gethostbyaddr(remote_address[0])[0]
+                            # Construct the URL
+                            url = f"{'https://' if conn.laddr.port == 443 else 'http://'}{domain_name}"
+                            urls.append(url)
+                        except socket.herror:
+                            # If unable to resolve, you can append the IP address instead
+                            url = f"{'https://' if conn.laddr.port == 443 else 'http://'}{remote_address[0]}"
+                            urls.append(url)
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+    
+    return urls
+print("-------",get_browser_connections())
+if __name__ == "__main__":
+    active_urls = get_browser_connections()
+    print("Active HTTP and HTTPS network connections made by browsers:")
+    for url in active_urls:
+        print(f"Local Address: ({url})")
+
+import sqlite3
+import os
+
+def get_chrome_history():
+    history_path = os.path.expanduser("~") + r"\AppData\Local\Google\Chrome\User Data\Default\History"
+    try:
+        # Connect to the database
+        conn = sqlite3.connect(history_path)
+        cursor = conn.cursor()
+        
+        # Execute a query to retrieve URLs from the history
+        cursor.execute("SELECT url FROM urls ORDER BY last_visit_time DESC")
+        
+        # Fetch and print all URLs
+        urls = [url[0] for url in cursor.fetchall()]
+        conn.close()
+        print("-----",urls)
+        return urls
+    except sqlite3.OperationalError:
+        print("Chrome is currently running, please close it to access the history file.")
+        return []
+    
+print("---ds",get_chrome_history)
+
+
+# from scapy.all import sniff
+
+# def packet_callback(packet):
+#     print(packet.summary())
+
+# # Start sniffing
+# sniff(prn=packet_callback, store=0)
+
+
+import subprocess
+
+def get_scan_results():
+    # Execute PowerShell command and capture output
+    result = subprocess.run(
+        ["powershell", "Get-MpThreatDetection"],
+        capture_output=True,
+        text=True
+    )
+    # Print the raw output for debugging purposes
+    print(result.stdout)
+    return result.stdout  # Return result to be used in Django view
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+@csrf_exempt
+def scan_results_view(request):
+    # Get scan results
+    results = get_scan_results()
+    # Print the results in Django's server log (useful for debugging)
+    print("Scan Results:", results)
+    # Return the results as JSON response to the frontend
+    return JsonResponse({'scan_results': results})

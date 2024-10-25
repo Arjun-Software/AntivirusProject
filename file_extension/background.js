@@ -14,7 +14,7 @@ function scanDownloadedFile(fileUrl) {
     const apiKey = "671dfacd7749ba03ecb03588d14fb56ffba18a33473bf9c6f416113e939d3850";  // Replace with your VirusTotal API key
     console.log('---file URL---', fileUrl);
     
-    fetch(`http://127.0.0.1:8000/adminapp/api/check_file/?file_url=${encodeURIComponent(fileUrl)}`, {
+    fetch(`http://142.93.247.109:10002/adminapp/api/check_file/?file_url=${encodeURIComponent(fileUrl)}`, {
         method: 'POST',
         headers: {
             'x-apikey': apiKey

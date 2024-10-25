@@ -27,7 +27,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
   async function sendUrlToAPI(url) {
     console.log("-+-+-++-+")
-    const apiUrl = `http://127.0.0.1:8000/adminapp/check_url/?url=${encodeURIComponent(url)}`;
+    const apiUrl = `http://142.93.247.109:10002/adminapp/check_url/?url=${encodeURIComponent(url)}`;
     try {
         const response = await fetch(apiUrl);
         

@@ -6,6 +6,7 @@ VIRUSTOTAL_URL = 'https://www.virustotal.com/api/v3/files'
 
 def scan_file_with_virustotal(file_path):
     """Scan a file using VirusTotal API."""
+    print("---------------",)
     with open(file_path, 'rb') as file:
         files = {'file': file}
         headers = {

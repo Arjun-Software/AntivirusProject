@@ -32,5 +32,27 @@ urlpatterns = [
     path('quarantine/list/', views.list_quarantined_files, name='list_quarantined_files'),
     path('quarantine/manage/', views.manage_quarantined_file, name='manage_quarantined_file'),
     path('firewall/', views.configure_firewall, name='configure_firewall'),
+    path('defenderscan_file/', views.defenderscan_file, name='defenderscan_file'),
+    path('DefenderAPI/', views.DefenderAPI.as_view(), name='defender_actions'),
+    path('scan_results_view/', views.scan_results_view, name='scan_results_view'),
 ]
+
+''' 
+module.exports = {
+  apps : [{
+    name: 'Antivirus',
+    script: 'manage.py',
+    args: 'runserver 0.0.0.0:20001',
+    instances: 1,
+    autorestart: true,
+    exp_backoff_restart_delay: 100,
+    watch: false,
+    max_memory_restart: '1G',
+    interpreter:'/usr/bin/python3'
+  }]
+};
+
+ecosystem.config.js
+
+'''
 
