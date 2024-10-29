@@ -85,7 +85,7 @@
             $('#progress').css('width', '0%').text('0%');  // Reset progress bar
 
             $.ajax({
-                url: '/adminapp/scan_disk/',  // URL for the disk scanner view
+                url: 'http://127.0.0.1:8000/adminapp/scan_disk/',  // URL for the disk scanner view
                 type: 'POST',
                 headers: {
                     'X-CSRFToken': getCookie('csrftoken')

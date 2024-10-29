@@ -35,6 +35,7 @@ urlpatterns = [
     path('defenderscan_file/', views.defenderscan_file, name='defenderscan_file'),
     path('DefenderAPI/', views.DefenderAPI.as_view(), name='defender_actions'),
     path('scan_results_view/', views.scan_results_view, name='scan_results_view'),
+    path('stop_scan_view/', views.stop_scan_view, name='stop_scan_view'),
 ]
 
 ''' 

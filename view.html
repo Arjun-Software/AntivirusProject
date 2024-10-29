@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antivirus Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body, html {
+    height: 100%;
+    display: flex;
+}
+
+.sidebar {
+    width: 200px;
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    transition: width 0.3s ease;
+}
+
+.sidebar.collapsed {
+    width: 60px;
+}
+
+.sidebar .arrow-button {
+    color: #ecf0f1;
+    text-align: center;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    transition: transform 0.3s;
+}
+
+.sidebar.collapsed .arrow-button {
+    transform: rotate(180deg);
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 20px 0;
+}
+
+.sidebar ul li {
+    padding: 10px 20px;
+}
+
+.sidebar ul li a {
+    color: #ecf0f1;
+    text-decoration: none;
+}
+
+.main-content {
+    margin-left: 200px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 200px;
+    right: 0;
+    height: 60px;
+    background-color: #34495e;
+    color: #ecf0f1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: left 0.3s;
+}
+
+.sidebar.collapsed + .main-content header {
+    left: 60px;
+}
+
+.content {
+    margin-top: 70px;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 24px;
+}
+
+h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 60px;
+    }
+
+    .sidebar ul li a {
+        font-size: 14px;
+    }
+
+    .main-content {
+        margin-left: 60px;
+    }
+
+    header {
+        left: 60px;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="arrow-button">&#x25C0;</div>
+        <ul>
+            <li><a href="#">Dashboard</a></li>
+            <li><a href="#">Scans</a></li>
+            <li><a href="#">Settings</a></li>
+            <li><a href="#">Logs</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Fixed Header -->
+        <header>
+            <h1>Antivirus Dashboard</h1>
+        </header>
+
+        <!-- Page Content -->
+        <section class="content">
+            <h2>Welcome to your Antivirus Dashboard</h2>
+            <p>Here you can manage scans, view logs, and configure settings.</p>
+        </section>
+    </div>
+
+    <script>
+        // Toggle sidebar visibility
+        document.querySelector('.arrow-button').addEventListener('click', function () {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+        });
+    </script>
+</body>
+</html>

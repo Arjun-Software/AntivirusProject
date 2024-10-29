@@ -937,8 +937,6 @@ class getIPaddressAPI(APIView):
         
         return JsonResponse({'ip': ip_address})
 
-
-
 class Diskfrigmentation(APIView):
     def get(self,request):
         return render(request,'Antivirus/inner2.html')
@@ -1193,11 +1191,10 @@ def configure_firewall(request):
                     # Check if the program is already blocked
                     print("-----program_path--",program_path)
                     existing_program = admindb.adminapp_blockedprogram.find_one({"program_path": Data['program_path']})
-                    print("======1196===",existing_program)
+                    
                     if existing_program is not None:
                         message = f"{program_path} is already blocked."
                     else:
-                        # Attempt to insert the new blocked program into the database
                         admindb.adminapp_blockedprogram.insert_one(Data)
                         subprocess.run(f"netsh advfirewall firewall add rule name='AntivirusProject' dir=in action=block program={program_path} enable=yes", shell=True, check=True)
                         message = f"Blocked {program_path} in the firewall."
@@ -1297,19 +1294,6 @@ def fetch_defender_events():
     events = win32evtlog.ReadEventLog(handle, flags, 0)
     print("====",events)
     return events
-
-import subprocess
-
-def check_defender_status():
-    command = ["powershell", "Get-MpComputerStatus"]
-    result = subprocess.run(command, capture_output=True, text=True)
-    print("--------",result)
-    return result.stdout
-def enable_real_time_monitoring():
-    command = ["powershell", "-Command", "Set-MpPreference -DisableRealtimeMonitoring $false"]
-    result = subprocess.run(command, capture_output=True, text=True)
-    print("----",result)
-    return result.stdout  # or handle output/error as needed
 
 from django.views import View
 
@@ -1451,35 +1435,118 @@ def get_chrome_history():
 print("---ds",get_chrome_history)
 
 
-# from scapy.all import sniff
+def get_scan_results(scan_type=None):
+    try:
+        if scan_type == "quick":
+            result = subprocess.run(
+                ["powershell", "-Command", "Start-MpScan -ScanType QuickScan"],
+                capture_output=True,
+                text=True
+            )
+        elif scan_type == "full":
+            result = subprocess.run(
+                ["powershell", "-Command", "Start-MpScan -ScanType FullScan"],
+                capture_output=True,
+                text=True
+            )
+        elif scan_type == "retrieve":
+            result = subprocess.run(
+                ["powershell", "-Command", "Get-MpThreatDetection"],
+                capture_output=True,
+                text=True
+            )
+        if result.returncode != 0:
+            error_message = result.stderr.strip()
+            return {"error": f"Command failed with error: {error_message}"}
+     
+        lines = result.stdout.strip().splitlines() if result.stdout else []
+        parsed_results = []
+        entry = {}
 
-# def packet_callback(packet):
-#     print(packet.summary())
+        for line in lines:
+            if line == "":
+                if entry:
+                    sl = {"Success":entry['ActionSuccess'],
+                    "start_scanning_time":entry['InitialDetectionTime'],
+                    "end_scanning_time":entry['LastThreatStatusChangeTime'],
+                    "ProcessName":entry['ProcessName'],
+                    "ThreatStatusErrorCode":entry['ThreatStatusErrorCode']
+                    }
+                    parsed_results.append(sl)
+                    entry = {}
+            elif ":" in line:
+                key, value = line.split(":", 1)
+                entry[key.strip()] = value.strip()
+        
+        if entry:  # Append the last entry if present
+            sl = {"Success":entry['ActionSuccess'],
+                  "start_scanning_time":entry['InitialDetectionTime'],
+                  "end_scanning_time":entry['LastThreatStatusChangeTime'],
+                  "ProcessName":entry['ProcessName'],
+                  "ThreatStatusErrorCode":entry['ThreatStatusErrorCode']
+                  }
+            parsed_results.append(sl)
+        
+        return parsed_results  # Return as list of dictionaries
+    except Exception as e:
+        return {"error": f"An exception occurred: {str(e)}"}
 
-# # Start sniffing
-# sniff(prn=packet_callback, store=0)
-
-
-import subprocess
-
-def get_scan_results():
-    # Execute PowerShell command and capture output
-    result = subprocess.run(
-        ["powershell", "Get-MpThreatDetection"],
-        capture_output=True,
-        text=True
-    )
-    # Print the raw output for debugging purposes
-    print(result.stdout)
-    return result.stdout  # Return result to be used in Django view
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 @csrf_exempt
 def scan_results_view(request):
-    # Get scan results
-    results = get_scan_results()
-    # Print the results in Django's server log (useful for debugging)
-    print("Scan Results:", results)
-    # Return the results as JSON response to the frontend
-    return JsonResponse({'scan_results': results})
+    scan_type = request.GET.get("scan_type")  # default to "retrieve" if not provided
+    #   Antivirus/firewall.html  "Antivirus/fullscan.html"
+    print("88888888********",scan_type)
+    if scan_type is not None:
+        results = get_scan_results(scan_type)
+        return render(request, "Antivirus/fullscan.html",{'scan_results': results})
+    else:
+        return render(request, "Antivirus/fullscan.html")
+    
+
+def stop_scan():
+    try:
+        # Check if the Windows Defender service is running
+        service_check = subprocess.run(
+            ["powershell", "-Command", "Get-Service -Name WinDefend | Select-Object -ExpandProperty Status"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+
+        if service_check.stdout.strip() != "Running":
+            return {"error": "Windows Defender service is not running."}
+
+        # Attempt to disable real-time protection
+        print("====service_check.stdout.strip()===",service_check.stdout.strip())
+        result = subprocess.run(
+            ["powershell", "-Command", "Set-MpPreference -DisableRealtimeMonitoring $true"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        print("result",result)
+        return {"message": "Real-time protection disabled successfully. Scan should stop soon."}
+
+    except subprocess.CalledProcessError as e:
+        if e.stderr.strip() == "Set-MpPreference : Operation failed with the following error: 0x%1!x!\nAt line:1 char:1\n+ Set-MpPreference -DisableRealtimeMonitoring $true\n+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo            : NotSpecified: (MSFT_MpPreference:root\\Microsoft\\...FT_MpPreference) [Set-MpPreference], CimException\n    + FullyQualifiedErrorId : HRESULT 0xc0000142,Set-MpPreference":
+            return {"error": "Insufficient privileges to disable real-time protection. Please run the script as administrator."}
+        else:
+            return {"error": f"Failed to disable real-time protection: {e.stderr.strip()}"}
+
+    except Exception as e:
+        return {"error": f"An unexpected error occurred: {str(e)}"}
+
+@csrf_exempt  # Consider CSRF protection for production environments
+def stop_scan_view(request):
+    """
+    View function to handle stop scan requests and return JSON response.
+
+    Args:
+        request (HttpRequest): The incoming HTTP request.
+
+    Returns:
+        JsonResponse: A JSON response containing the results of the stop_scan function.
+    """
+
+    results = stop_scan()
+    return JsonResponse(results)

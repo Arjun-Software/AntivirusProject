@@ -2,49 +2,81 @@ import os
 import subprocess
 import threading
 import webview
+from django.core.management import execute_from_command_line
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Function to run the Django server
-def run_django():
-    os.chdir('E:/Arjun/Antivirusproject')
-    subprocess.Popen(['python', 'manage.py', 'runserver'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+def start_server():
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Antivirusproject.settings')
+    execute_from_command_line(['manage.py', 'runserver', '--noreload'])
 
-# JavaScript to add navigation controls
+
+
+
 js_navigation_controls = """
-const navDiv = document.createElement('div');
-navDiv.style.position = 'fixed';
-navDiv.style.top = '10px';
-navDiv.style.right = '10px';
-navDiv.style.zIndex = '1000';
-navDiv.style.display = 'flex';
-navDiv.style.gap = '10px';
+// Insert enhanced JavaScript for navigation
+const headerDiv = document.createElement('div');
+headerDiv.style.position = 'fixed';
+headerDiv.style.top = '0';
+headerDiv.style.left = '0';
+headerDiv.style.width = '100%';
+headerDiv.style.backgroundColor = '#333';
+headerDiv.style.color = '#fff';
+headerDiv.style.padding = '10px 20px';
+headerDiv.style.display = 'flex';
+headerDiv.style.justifyContent = 'space-between';
+headerDiv.style.alignItems = 'center';
+headerDiv.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+headerDiv.style.zIndex = '1000';
 
-// Back button
+const titleDiv = document.createElement('div');
+titleDiv.innerText = 'Antivirus Dashboard';
+titleDiv.style.fontSize = '18px';
+headerDiv.appendChild(titleDiv);
+
+const navControls = document.createElement('div');
+navControls.style.display = 'flex';
+navControls.style.gap = '10px';
+
 const backBtn = document.createElement('button');
 backBtn.innerText = '⟵';
 backBtn.onclick = () => history.back();
-navDiv.appendChild(backBtn);
+styleButton(backBtn);
+navControls.appendChild(backBtn);
 
-// Forward button
 const forwardBtn = document.createElement('button');
 forwardBtn.innerText = '⟶';
 forwardBtn.onclick = () => history.forward();
-navDiv.appendChild(forwardBtn);
+styleButton(forwardBtn);
+navControls.appendChild(forwardBtn);
 
-// Refresh button
 const refreshBtn = document.createElement('button');
 refreshBtn.innerText = '⟳';
 refreshBtn.onclick = () => location.reload();
-navDiv.appendChild(refreshBtn);
+styleButton(refreshBtn);
+navControls.appendChild(refreshBtn);
 
-document.body.appendChild(navDiv);
+headerDiv.appendChild(navControls);
+document.body.style.paddingTop = '60px';
+document.body.appendChild(headerDiv);
+
+function styleButton(button) {
+    button.style.backgroundColor = '#555';
+    button.style.color = '#fff';
+    button.style.border = 'none';
+    button.style.padding = '8px 12px';
+    button.style.borderRadius = '4px';
+    button.style.cursor = 'pointer';
+    button.style.fontSize = '14px';
+    button.onmouseover = () => (button.style.backgroundColor = '#777');
+    button.onmouseout = () => (button.style.backgroundColor = '#555');
+}
 """
 
 def open_webview():
-    # Create a webview window and inject JavaScript for navigation controls
-    window = webview.create_window('Antivirus Dashboard', 'http://127.0.0.1:8000/')
+    window = webview.create_window('Antivirus Dashboard', 'http://127.0.0.1:8000/') 
     window.events.loaded += lambda: window.evaluate_js(js_navigation_controls)
     webview.start()
 
 if __name__ == "__main__":
-    threading.Thread(target=run_django, daemon=True).start()
+    threading.Thread(target=start_server, daemon=True).start()
     open_webview()

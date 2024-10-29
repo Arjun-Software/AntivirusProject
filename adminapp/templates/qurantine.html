@@ -110,7 +110,7 @@
 
             const formData = new FormData(this);
 
-            fetch('/adminapp/filescan/', {
+            fetch('http://127.0.0.1:8000/adminapp/filescan/', {
                 method: 'POST',
                 body: formData
             })
@@ -125,7 +125,7 @@
 
         // List Quarantined Files
         document.getElementById('list-quarantine').addEventListener('click', function () {
-            fetch('/adminapp/quarantine/list/')
+            fetch('http://127.0.0.1:8000/adminapp/quarantine/list/')
                 .then(response => response.json())
                 .then(data => {
                     const list = document.getElementById('quarantine-list');
@@ -147,7 +147,7 @@
 
             const formData = new FormData(this);
 
-            fetch('/adminapp/quarantine/manage/', {
+            fetch('http://127.0.0.1:8000/adminapp/quarantine/manage/', {
                 method: 'POST',
                 body: formData
             })

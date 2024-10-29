@@ -85,7 +85,7 @@
         const formData = new FormData(document.getElementById('defragForm'));
 
         try {
-            const response = await fetch('/adminapp/Diskfrigmentation/', {
+            const response = await fetch('http://127.0.0.1:8000/adminapp/Diskfrigmentation/', {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -112,7 +112,7 @@
         }
 
         try {
-            const response = await fetch('/adminapp/Diskfrigmentation/', {
+            const response = await fetch('http://127.0.0.1:8000/adminapp/Diskfrigmentation/', {
                 method: 'POST',
                 body: formData,
                 headers: {

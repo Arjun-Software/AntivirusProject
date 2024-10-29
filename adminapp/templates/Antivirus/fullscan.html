@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanner</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        h1 {
+            color: #444;
+            margin-top: 20px;
+        }
+        .scan-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        .scan-button:hover {
+            background-color: #45a049;
+        }
+        #scanOutput {
+            width: 80%;
+            height: 300px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: left;
+            margin: 0 auto;
+            padding: 15px;
+            overflow-y: scroll;
+            white-space: pre-wrap;
+        }
+        .progress-bar {
+            width: 80%;
+            background-color: #f3f3f3;
+            border-radius: 4px;
+            margin: 10px auto;
+            overflow: hidden;
+        }
+        .progress {
+            width: 0%;
+            height: 20px;
+            background-color: #4CAF50;
+            line-height: 20px;
+            color: white;
+            text-align: center;
+        }
+        .scan-complete {
+            color: green;
+            font-weight: bold;
+        }
+        .scan-error {
+            color: red;
+        }
+        .scanning-file {
+            color: #007bff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+ 
+
+    <h1>Scanner</h1>
+    
+    <!-- Scan Buttons for Quick, Full, and Retrieve Scans -->
+    <a class="scan-button" href="/adminapp/scan_results_view/?scan_type=quick" >Quick test Scan</a>
+    <a class="scan-button" href="/adminapp/scan_results_view/?scan_type=full">Full Scan</a>
+    <a class="scan-button"href="/adminapp/scan_results_view/?scan_type=retrieve">Retrieve Past Detections</a>
+    
+    {% if scan_results %}
+    <h2>Scan Results</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>File Status</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Process Name</th>
+                <th>Threat Status Code</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in scan_results %}
+                <tr>
+                    <td>{{ result.Success }}</td>
+                    <td>{{ result.start_scanning_time }}</td>
+                    <td>{{ result.end_scanning_time }}</td>
+                    <td>{{ result.ProcessName }}</td>
+                    <td>{{ result.ThreatStatusErrorCode }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+</body>
+</html>
+  
