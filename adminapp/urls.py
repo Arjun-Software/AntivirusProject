@@ -23,6 +23,7 @@ urlpatterns = [
     path('powersaverAPI/', views.powersaverAPI.as_view() , name='powersaverAPI'),
     path('gamespeedAPI/', views.gamespeedAPI.as_view() , name='gamespeedAPI'),
     path('getIPaddressAPI/', views.getIPaddressAPI.as_view() , name='getIPaddressAPI'),
+    path('browserAPI/', views.browserAPI.as_view() , name='browserAPI'),
     path('system-status/', views.system_status, name='system_status'),
     path('check_url/', views.check_url, name='check_url'),  # API route
     path('api/check_file/',views.check_file_safety, name='check_file_safety'),

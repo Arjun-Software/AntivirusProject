@@ -9,6 +9,7 @@ import os
 import datetime
 from Antivirusproject.settings import VIRUSTOTAL_API_KEY
 from .models import BlockedProgram
+
 # Create your views here.
 
 
@@ -86,7 +87,9 @@ class adminLoginAPI(APIView):
             error_message = response_messages("failed", message,500)
             return JsonResponse(error_message, safe=False, status=500)
 
-
+class browserAPI(APIView):
+    def get(self,request):
+        return render(request,'Antivirus/inner13.html')
 class qurantineAPI(APIView):
     def get(self,request):
         return render(request,'Antivirus/qurantine.html')
@@ -1031,6 +1034,7 @@ from django.http import StreamingHttpResponse
 import time  # To simulate delay between scans for demonstration
 
 # Function to stream USB file scan results
+@csrf_exempt
 def USBscanner(request):
     if request.method == 'POST':
         usb_files = list_usb_files()
