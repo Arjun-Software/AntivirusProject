@@ -5,509 +5,483 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anti-Malware UI</title>
+    <title>Anti-Malware</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f4f7;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .custom-card {
-            background-color: #0a3b52;
-            border-radius: 10px;
-            padding: 20px;
-            color: #fff;
-        }
-
-        .status {
-            /* display: flex; */
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-
-        .status-item {
-            background-color: #004b68;
-            border-radius: 8px;
-            padding: 20px;
-            /* width: 16%; */
-            text-align: center;
+        .security-body {
+            background-color: whitesmoke !important;
             color: white;
-            height: 145px;
+            font-family: Arial, sans-serif;
         }
 
-        .status-item i {
-            font-size: 30px;
+        /* Sidebar styling */
+        .security-sidebar {
+            width: 70px;
+            background-color: #0a3b52;
+            min-height: 100vh;
+            padding-top: 20px;
         }
 
-        .status-item h4 {
-            margin-top: 10px;
-            font-size: 2rem;
-            color: #ff4f4f;
-        }
-
-        .status-item small {
-            color: #dcdcdc;
-        }
-
-        .threat-level {
-            height: 12px;
-            width: 20%;
-            background: linear-gradient(to right, #ff4f4f, #f7b731);
+        .security-link {
+            color: #ffffff;
+            padding: 20px;
             border-radius: 5px;
-        }
-
-        .threat-item {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 5px 0;
+            justify-content: center;
+            font-size: 25px;
         }
 
-        .threat-item span {
-            color: black;
+        .security-link:hover,
+        .security-link.active {
+            background-color: #004b68;
+            color: #ffffff;
         }
 
-        .fix-button {
-            background:  linear-gradient(to right, #ff4f4f, #f7b731);
+        /* Navbar styling */
+        .security-navbar {
+            background-color: #0a3b52;
+            border-bottom: 1px solid #444444;
+            padding: 10px 0px;
+        }
+
+        .security-nav-link {
+            color: #ffffff;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+        }
+
+        .security-nav-link i {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        .security-nav-link:hover {
+            color: #cccccc;
+        }
+
+        /* Main content styling */
+        .security-content {
+            /* background-color: #333; */
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .protection-message {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .protection-message button {
+            background-color: #007bff;
             border: none;
+            color: white;
             padding: 10px 20px;
             border-radius: 5px;
-            color: white;
             font-weight: bold;
             cursor: pointer;
         }
 
-        .fix-button:hover {
-            background:  linear-gradient(to right, #ff4f4f, #f7b731);
+        .protection-message button:hover {
+            background-color: #0056b3;
         }
 
-        .icon {
-            font-size: 25px;
-          color: #01e80e;
-        }
 
-        .header-icon {
-            font-size: 30px;
-        }
 
-        .header-section {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
 
-        /* Navbar */
-        .navbar-custom {
-            background-color: #0a3b52;
-            color: #fff;
-            padding: 10px;
-        }
-
-        .navbar-custom .navbar-brand {
-            color: white;
-        }
-
-        /* Footer */
-        .footer-custom {
-            background-color: #0a3b52;
-            color: #fff;
-            padding: 10px;
-            text-align: center;
-            margin-top: auto;
-        }
-
-        /* Adjusting the layout */
-        .status-item {
-            min-height: 120px;
-            flex-grow: 1;
-            margin-right: 15px;
-        }
-
-        .status-item:last-child {
-            margin-right: 0;
-        }
-
-        small {
-            font-size: 25px !important;
-            font-weight: 600;
-        }
-        .top-banner{
-            background-color: #fff;
-            width: 100%;
-            height: 600px;
-        }
-        .banner {
-            background: url("banner.jpeg");
-            width: 100%;
-            height: 600px;
-            background-repeat: no-repeat;
-            background-size: cover;
-           
-        }
-       /* login page css */
-       
-       * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Poppins", sans-serif;
-        }
-
+          /* General Styling */
       
 
-        .login-container {
-            /* position: absolute; */
-            /* top: 50%;
-            left: 50%; */
-            /* transform: translate(-50%, -50%); */
-            /* background: #fff; */
-            width: 450px;
-            height: auto;
-            border-radius: 20px;
-            /* box-shadow: 0 10px rgb(110, 110, 110, 0.2); */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+
+
+        /* Header Section */
+        .title-section {
+            background-color: #3b3e47;
+            padding: 15px;
+            border-radius: 8px;
+            /* text-align: center; */
         }
 
-        .login-box,
-        .login-box button {
-            display: flex;
-            align-items: center;
+        .title-section p {
+            font-size: 1.1rem;
+            margin: 0;
         }
 
-        .login-box {
-            width: 300px;
-            height: auto;
-            flex-direction: column;
-            justify-content: space-evenly;
-        }
-
-        .login-box button {
-            width: 360px;
-            height: 40px;
-            background-color: #fff;
-            outline: none;
-            font-weight: bold;
-            border: 1px solid rgb(211, 210, 210);
-            border-radius: 20px;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        .login-box-two input {
-            position: relative;
-            width: 360px;
-            height: 55px;
-            outline: none;
-            border: 1px solid rgb(211, 210, 210);
-            border-radius: 4px;
-            padding-left: 10px;
-        }
-
-        .login-box-two input::placeholder {
-            font-size: 1rem;
-        }
-
-        .login-box-two input:focus {
-            border: 1px solid #00acee;
-        }
-
-        .login-box-two .login-next-btn {
-            background:  linear-gradient(to right, #ff4f4f, #f7b731);
-            color: #fff;
-            margin-top: 50px !important;
-        }
-
-        .login-container p {
+        .title-section small {
+            color: #b3b3b3;
             font-size: 0.9rem;
-            color: rgb(138, 136, 136);
-            margin-top: 10px;
         }
 
-        .login-container p a {
-            text-decoration: none;
-            color: #00acee;
-        }
-        a{
-            text-decoration: none;
-        }
-        .sidebar {
-            width: 200px;
-            background-color: #2c3e50;
-            color: #ecf0f1;
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            transition: width 0.3s ease;
-        }
-        
-        .sidebar.collapsed {
-            width: 60px;
-        }
-        
-        .sidebar .arrow-button {
-            color: #ecf0f1;
-            text-align: center;
+        /* Button Styling */
+        .btn-full-protection {
+            background-color: #3a83f1;
+            color: #ffffff;
+            border: none;
             padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
             cursor: pointer;
-            font-size: 20px;
-            transition: transform 0.3s;
+            margin-top: 15px;
+            text-align: center;
         }
-        
-        .sidebar.collapsed .arrow-button {
-            transform: rotate(180deg);
-        }
-        
-        .sidebar ul {
-            list-style: none;
-            padding: 20px 0;
-        }
-        
-        .sidebar ul li {
-            padding: 10px 20px;
-        }
-        
-        .sidebar ul li a {
-            color: #ecf0f1;
-            text-decoration: none;
-        }
-        
-        .main-content {
-            margin-left: 200px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        header {
-            position: fixed;
-            top: 0;
-            left: 200px;
-            right: 0;
-            height: 60px;
-            background-color: #34495e;
-            color: #ecf0f1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: left 0.3s;
-        }
-        
-        .sidebar.collapsed + .main-content header {
-            left: 60px;
-        }
-        
-        .content {
-            margin-top: 70px;
+
+        /* Protection Card Styling */
+        .protection-card {
+            /* width: 100%; */
+            background-color: #004B68;
             padding: 20px;
+            border-radius: 8px;
+            text-align: center;
         }
-        
-        h1 {
-            font-size: 24px;
+
+        .protection-card h5 {
+            font-size: 1rem;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            text-align: center;
         }
-        
-        h2 {
-            font-size: 18px;
-            margin-bottom: 15px;
+
+        .protection-card p {
+            font-size: 0.85rem;
+            color: #b3b3b3;
+            text-align: center;
         }
-        
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 60px;
-            }
-        
-            .sidebar ul li a {
-                font-size: 14px;
-            }
-        
-            .main-content {
-                margin-left: 60px;
-            }
-        
-            header {
-                left: 60px;
-            }
+
+        /* Icon Styles */
+        .icon_dash {
+            font-size: 2rem;
+
         }
+
+        .icon_dash.active {
+            color: #1fbb68;
+        }
+
+        .icon_dash.inactive {
+            color: #7f7f7f;
+        }
+
+        /* Toggle Switch Styling */
+        .form-switch .form-check-input {
+            width: 2.5em;
+            height: 1.2em;
+            /* margin-left: 0; */
+            background-color: #7f7f7f;
+        }
+
+        .form-switch .form-check-input:checked {
+            background-color: #1fbb68;
+        }
+        .form-check{
+            width: 90px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+
+        .table-custom th, .table-custom td {
+      text-align: center;
+      vertical-align: middle;
+    }
+    .check-icon {
+      color: green;
+    }
+    .cross-icon {
+      color: red;
+    }
+    .asterisk-icon {
+      color: #666;
+    }
+    .protection-card{
+        height: 180px;
+    }
+    a{
+        text-decoration: none;
+        color: white;
+    }
     </style>
 </head>
 
 <body>
 
-   <!-- Sidebar -->
-   <div class="sidebar">
-    <div class="arrow-button">&#x25C0;</div>
-    <ul>
-        <li><a href="/adminapp/">Dashboard</a></li>
-        <li><a href="#">Scans</a></li>
-        <li><a href="#">Settings</a></li>
-        <li><a href="#">Logs</a></li>
-    </ul>
-</div>
 
-<!-- Main Content -->
-<div class="main-content">
-    <!-- Fixed Header -->
-    <header>
-        <h1>Antivirus Dashboard</h1>
-    </header>
-
-    <!-- Page Content -->
-    <div class="container my-5">
-        <div class="custom-card p-4">
-           
-            <div class="status mt-4">
-                <div class="row">
-                    <a href="/adminapp/disk-scanner/" class="status-item col-sm-2 mt-3">
-                        <i class="fa fa-tasks icon"></i>
-                        <h4></h4>
-                        <small>Drive Clean</small>
-                        
-                    </a>
-                    <a href="/adminapp/Diskfrigmentation" class="status-item col-sm-2 mt-3">
-                        <i class="fa fa-calendar-alt icon"></i>
-                        <h4></h4>
-                        <small>Disk Defragmentation</small>
-                        
-                    </a>
-                    <a href="/adminapp/Diskcleanup/" class="status-item col-sm-2 mt-3">
-                        <i class="fa fa-folder icon"></i>
-                        <h4></h4>
-                        <small>Disk Cleanup Suggestions</small>
-                        
-                    </a>
-          
-             
-                    <a href="/adminapp/powersaverAPI/" class="status-item col-sm-2 mt-3">
-                        <i class="fa fa-list icon"></i>
-                        <h4></h4>
-                        <small>Power Saver
-                        </small>
-                        
-                    </a>
-                    <a href="/adminapp/gamespeedAPI/" class="status-item col-sm-2 mt-3">
-                        <i class="fa fa-cookie icon"></i>
-                        <h4></h4>
-                        <small>Game Speed Optimization</small>
-                        
-                    </a>
-                  
-                </div>
-                <div class="row">
-                    <a href="/adminapp/filescanAPI/" class="status-item col-sm-2 mt-3">
-                        <i class="fa fa-th-list icon"></i>
-                        <h4></h4>
-                        <small>Scan All Files</small>
-                        
-                    </a>
-                    <a href="/adminapp/scanUrlAPI/" class="status-item col-sm-2 mt-3">
-                        <i class="fa fa-th-list icon"></i>
-                        <h4></h4>
-                        <small>URL Scan</small>
-                    </a>
-                    <a href="/adminapp/quarantine/list/" class="status-item col-sm-2 mt-3">
-                        <i class="fa fa-th-list icon"></i>
-                        <h4></h4>
-                        <small>Quarantine</small>
-                        
-                    </a>
-                    <a href="/adminapp/scan_results_view/" class="status-item col-sm-2 mt-3">
-                        <i class="fa fa-th-list icon"></i>
-                        <h4></h4>
-                        <small>Quick Virus Scan</small>
-                        
-                    </a>
-                    <a href="/adminapp/scan_results_view/" class="status-item col-sm-2 mt-3">
-                        <i class="fa fa-th-list icon"></i>
-                        <h4></h4>
-                        <small>Full Virus Scan</small>
-                        
-                    </a>
-                    <a href="/adminapp/system-status/" class="status-item col-sm-2 mt-3">
-                        <i class="fa fa-th-list icon"></i>
-                        <h4></h4>
-                        <small>System Configuration</small>
-                        
-                    </a>
-                    <a href="/adminapp/firewall/" class="status-item col-sm-2 mt-3">
-                        <i class="fa fa-th-list icon"></i>
-                        <h4></h4>
-                        <small>Firewall</small>
-                        
-                    </a>
-                    <a href="/adminapp/USBscanner/" class="status-item col-sm-2 mt-3">
-                        <i class="fa fa-th-list icon"></i>
-                        <h4></h4>
-                        <small>USB Scanner
-                        </small>
-                        
-                    </a>
-                    <a href="/adminapp/browserAPI/" class="status-item col-sm-2 mt-3">
-                        <i class="fa fa-th-list icon"></i>
-                        <h4></h4>
-                        <small>Browser Safety</small>
-                        
-                    </a>
-                    <a href="/adminapp/get_install_app/" class="status-item col-sm-2 mt-3">
-                        <i class="fa fa-th-list icon"></i>
-                        <h4></h4>
-                        <small>App Manager</small>
-                        
-                    </a>
-                 
+    <body class="security-body">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark security-navbar">
+            <div class="container-fluid">
+                <a class="navbar-brand text-white fs-4" href="/adminapp/">AntiVirus</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <!-- Profile/Account Icon -->
+                       
+                        <!-- Help Icon -->
+                        <!-- <li class="nav-item">
+                            <a class="nav-link security-nav-link" href="#"><i class="fas fa-question-circle"></i> Help</a>
+                        </li> -->
+                      
+                        {% comment %} <li class="nav-item">
+                            <a class="nav-link security-nav-link p-1" href="#"><i class="fa-regular fa-x fs-5"></i> </a>
+                        </li> {% endcomment %}
+                    </ul>
                 </div>
             </div>
-        </div>
-
-    </div>
-    <div class="modal" id="myModal">
-        <div class="modal-dialog">
-          <div class="modal-content">
-      
-            <!-- Modal Header -->
-            <div class="modal-header border-0">
-          
-              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </nav>
+    
+    
+        <!-- Sidebar and Content Layout -->
+        <div class="d-flex">
+            <!-- Sidebar  /OurFetures.html -->
+            <div class="security-sidebar">
+                <ul class="nav flex-column text-center">
+                    <li class="nav-item mb-2">
+                        <a href="/adminapp/" class="nav-link security-link active" data-bs-toggle="tooltip" data-bs-placement="right" title="Security">
+                            <i class="fas fa-shield-alt"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="/adminapp/get_install_app/" class="nav-link security-link" data-bs-toggle="tooltip" data-bs-placement="right" title="App Manager">
+                            <i class="fas fa-user-shield"></i>
+                        </a>
+                    </li>
+                    
+                </ul>
             </div>
-      
-            <!-- Modal body -->
-            <div class="modal-body">
-                <div class="login-container">
-                    <h1>Login</h1>
-                    <div class="login-box login-box-two">
-                        <form>
-                            <div>
-                                <label for="">UserName :</label>
-                                <input type="text" placeholder="username" />
+    
+            <!-- Main Content -->
+            <div class="security-content">
+                <div class=" mt-2"> 
+                    <!-- Protection Options -->
+                    <div class="row mt-4">
+                        <div class="col-md-6 col-lg-3 myfeatures mb-3">
+                            <div class="protection-card">
+                                <a href="/adminapp/disk-scanner/">
+                                    <span><i class="fas fa-desktop icon active icon_dash" style="margin: auto;"></i></span>
+                                    <h5>Drive Clean</h5>
+                                    <p>Prevents viruses from making changes</p>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                        <label class="form-check-label" for="flexSwitchCheckDefault">On</label>
+                                    </div>
+                                </a>
                             </div>
-                            <div class="" style="margin-top: 12px;">
-                                <label for="" class="">Password :</label>
-                                <input type="text" placeholder="Password" />
+                        </div>
+                        <div class="col-md-6 col-lg-3 myfeatures mb-3">
+                            <div class="protection-card">
+                                <a href="/adminapp/Diskfrigmentation/">
+                                    <i class="fas fa-globe icon inactive icon_dash fs-1"></i>
+                                    <h5>Disk Defragmentation</h5>
+                                    <p>Protects you from online risks</p>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                        <label class="form-check-label" for="flexSwitchCheckDefault">Off</label>
+                                    </div>
+                                </a>
                             </div>
-            
-                        </form>
-                        <button class="login-next-btn" style="margin-top: 20px;">Next</button>
-            
+                        </div>
+                        <div class="col-md-6 col-lg-3 myfeatures mb-3">
+                            <div class="protection-card">
+                                <a href="/adminapp/Diskcleanup/">
+                                    <i class="fas fa-envelope icon inactive icon_dash fs-1"></i>
+                                    <h5>Disk Cleanup Suggestions</h5>
+                                    <p>Protects you from viruses in attachments</p>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                        <label class="form-check-label" for="flexSwitchCheckDefault">Off</label>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 myfeatures mb-3">
+                            <div class="protection-card">
+                                <a href="/adminapp/battery_status/">
+                                    <i class="fas fa-link icon inactive icon_dash fs-1"></i>
+                                    <h5>Power Saver</h5>
+                                    <p>Stops hackers from locking your device</p>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                        <label class="form-check-label" for="flexSwitchCheckDefault">Off</label>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 myfeatures mb-3">
+                            <div class="protection-card">
+                                <a href="/adminapp/game_booster/">
+                                    <i class="fas fa-envelope icon inactive icon_dash fs-1"></i>
+                                    <h5>Game Speed Optimization</h5>
+                                    <p>Stops hackers from locking your device</p>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                        <label class="form-check-label" for="flexSwitchCheckDefault">Off</label>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 myfeatures mb-3">
+                            <div class="protection-card">
+                                <a href="/adminapp/render_folderscan_page/">
+                                    <i class="fa-solid fa-window-maximize inactive icon_dash fs-1"></i>
+                                    <h5>Folder Scan</h5>
+                                    <p>Stops hackers from locking your device to scan folder</p>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                        <label class="form-check-label" for="flexSwitchCheckDefault">Off</label>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 myfeatures mb-3">
+                            <div class="protection-card">
+                                <a href="/adminapp/filescanAPI/">
+                                    <i class="fa-regular fa-list-check inactive icon_dash fs-1"></i>
+                                    <h5>Scan All Files</h5>
+                                    <p>Stops hackers from locking your device</p>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                        <label class="form-check-label" for="flexSwitchCheckDefault">Off</label>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 myfeatures mb-3">
+                            <div class="protection-card">
+                                <a href="/adminapp/scanUrlAPI/">
+                                    <i class="fas fa-link icon inactive icon_dash fs-1"></i>
+                                    <h5>URL Scan</h5>
+                                    <p>Stops hackers from locking your device</p>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                        <label class="form-check-label" for="flexSwitchCheckDefault">Off</label>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 col-lg-3 myfeatures mb-3">
+                            <div class="protection-card">
+                                <a href="/adminapp/quarantine/list/">
+                                    <i class="fas fa-envelope icon inactive icon_dash fs-1"></i>
+                                    <h5>Quarantine</h5>
+                                    <p>Stops hackers from locking your device</p>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                        <label class="form-check-label" for="flexSwitchCheckDefault">Off</label>
+                                    </div>
+                                </a>
+                            </div>
+                        </div> 
+                        <div class="col-md-6 col-lg-3 myfeatures mb-3">
+                            <div class="protection-card">
+                                <a href="/adminapp/scan_results_view/">
+                                    <i class="fas fa-globe icon inactive icon_dash fs-1"></i>
+                                    <h5>Full Virus Scan</h5>
+                                    <p>Stops hackers from locking your device</p>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                        <label class="form-check-label" for="flexSwitchCheckDefault">Off</label>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 myfeatures mb-3">
+                            <div class="protection-card">
+                                <a href="/adminapp/system-status/">
+                                    <i class="fas fa-link icon inactive icon_dash fs-1"></i>
+                                    <h5>System Configuration</h5>
+                                    <p>Stops hackers from locking your device</p>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                        <label class="form-check-label" for="flexSwitchCheckDefault">Off</label>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 myfeatures mb-3">
+                            <div class="protection-card">
+                                <a href="/adminapp/USBscanner/">
+                                    <i class="fas fa-envelope icon inactive icon_dash fs-1"></i>
+                                    <h5>USB Scanner</h5>
+                                    <p>Stops hackers from locking your device</p>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                        <label class="form-check-label" for="flexSwitchCheckDefault">Off</label>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        {% comment %} <div class="col-md-6 col-lg-3 myfeatures mb-3">
+                            <div class="protection-card">
+                                <a href="/adminapp/firewall/">
+                                    <i class="fas fa-envelope icon inactive icon_dash fs-1"></i>
+                                    <h5>Firewall</h5>
+                                    <p>Stops hackers from locking your device</p>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                        <label class="form-check-label" for="flexSwitchCheckDefault">Off</label>
+                                    </div>
+                                </a>
+                            </div> 
+                        </div> {% endcomment %}
+                        
+                        {% comment %} <div class="col-md-6 col-lg-3 myfeatures mb-3">
+                            <div class="protection-card">
+                                <a href="/adminapp/browserAPI/">
+                                    <i class="fas fa-envelope icon inactive icon_dash fs-1"></i>
+                                    <h5>Browser Safety</h5>
+                                    <p>Stops hackers from locking your device</p>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                        <label class="form-check-label" for="flexSwitchCheckDefault">Off</label>
+                                    </div>
+                                </a>
+                            </div>
+                        </div> {% endcomment %}
+                        {% comment %} <div class="col-md-6 col-lg-3 myfeatures mb-3">
+                            <div class="protection-card">
+                                <a href="/adminapp/get_install_app/">
+                                    <i class="fas fa-envelope icon inactive icon_dash fs-1"></i>
+                                    <h5>App Manager</h5>
+                                    <p>Stops hackers from locking your device</p>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                        <label class="form-check-label" for="flexSwitchCheckDefault">Off</label>
+                                    </div>
+                                </a>
+                            </div>
+                        </div> {% endcomment %}
                     </div>
-                    <p>Don't have an account? <a href="#">Sign Up</a></p>
+                    
+                    </div>
+                    <div class="mt-4" style="display: flex; justify-content: center;">
+                        <a href="/adminapp/">
+                        <button type="button"  class="btn btn-outline-dark me-4 fw-bold">Back  <i class="fa-solid fa-arrow-right"></i></button>
+                    </a>
+                    </div>
                 </div>
+            
             </div>
-      
-       
-      
-          </div>
         </div>
-      </div>
-    <!-- Footer -->
-  
-</div>
+    
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        </script>
+    </body>
 
 <script>
     // Toggle sidebar visibility

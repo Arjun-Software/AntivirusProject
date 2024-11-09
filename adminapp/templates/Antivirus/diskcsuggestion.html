@@ -1,0 +1,653 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anti-Malware</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        .security-body {
+            background-color: #004b68 !important;
+            color: white;
+            font-family: Arial, sans-serif;
+            background-color: #0a3b52;
+            text-align: center;
+        }
+
+        /* Sidebar styling */
+        .security-sidebar {
+            width: 70px;
+            background-color: #0a3b52;
+            min-height: 100vh;
+            padding-top: 20px;
+        }
+
+        .security-link {
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+        }
+
+        .security-link:hover,
+        .security-link.active {
+            background-color: #004b68;
+            color: #ffffff;
+        }
+
+        /* Navbar styling */
+        .security-navbar {
+            background-color: #0a3b52;
+            border-bottom: 1px solid #444444;
+            padding: 10px 0px;
+        }
+
+        .security-nav-link {
+            color: #ffffff;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+        }
+
+        .security-nav-link i {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        .security-nav-link:hover {
+            color: #cccccc;
+        }
+
+        /* Main content styling */
+        .security-content {
+            /* background-color: #333; */
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .protection-message {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .protection-message button {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .protection-message button:hover {
+            background-color: #0056b3;
+        }
+
+
+
+
+          /* General Styling */
+      
+
+
+
+        /* Header Section */
+        .title-section {
+            background-color: #3b3e47;
+            padding: 15px;
+            border-radius: 8px;
+            /* text-align: center; */
+        }
+
+        .title-section p {
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .title-section small {
+            color: #b3b3b3;
+            font-size: 0.9rem;
+        }
+
+        /* Button Styling */
+        .btn-full-protection {
+            background-color: #3a83f1;
+            color: #ffffff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        /* Protection Card Styling */
+        .protection-card {
+            /* width: 100%; */
+            background-color: #004B68;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .protection-card h5 {
+            font-size: 1rem;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .protection-card p {
+            font-size: 0.85rem;
+            color: #b3b3b3;
+            text-align: center;
+        }
+
+        /* Icon Styles */
+        .icon_dash {
+            font-size: 2rem;
+
+        }
+
+        .icon_dash.active {
+            color: #1fbb68;
+        }
+
+        .icon_dash.inactive {
+            color: #7f7f7f;
+        }
+
+        /* Toggle Switch Styling */
+        .form-switch .form-check-input {
+            width: 2.5em;
+            height: 1.2em;
+            /* margin-left: 0; */
+            background-color: #7f7f7f;
+        }
+
+        .form-switch .form-check-input:checked {
+            background-color: #1fbb68;
+        }
+        .form-check{
+            width: 90px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+
+        .table-custom th, .table-custom td {
+      text-align: center;
+      vertical-align: middle;
+    }
+    .check-icon {
+      color: green;
+    }
+    .cross-icon {
+      color: red;
+    }
+    .asterisk-icon {
+      color: #666;
+    }
+    .protection-card{
+        height: 180px;
+    }
+    a{
+        text-decoration: none;
+        color: white;
+    }
+    .drive-list {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+    .drive-item {
+        display: flex;
+        align-items: center;
+        background-color: #f0f4c3;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 100%; /* Adjust width as needed */
+        max-width: 400px; /* Set a max-width for better appearance */
+        flex-direction: column;
+    }
+
+
+    .drive-checkbox {
+        width: 20px;
+        height: 20px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        accent-color: #4caf50;
+    }
+
+    .drive-info {
+        color: #2c3e50;
+    }
+
+    .drive-bar {
+        height: 8px;
+        border-radius: 3px;
+        background-color: #ddd;
+        overflow: hidden;
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    .drive-bar-filled {
+        height: 100%;
+        background-color: #4caf50;
+    }
+
+    .search-input {
+        padding: 12px 24px;
+        border-radius: 5px;
+        border: none;
+        font-size: 16px;
+        background-color: #2c3e50;
+        color: #ffffff;
+        margin-top: 20px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .search-input:hover {
+        background-color: #1a252f;
+    }
+
+    .table-container {
+        max-height: 300px;
+        overflow-y: auto;
+        margin-top: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #fff;
+        color: #333;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #2c3e50;
+        color: #ffffff;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .hidden {
+        display: none;
+    }
+    
+    .icon {
+        width: 120px;
+        margin-bottom: 20px;
+    }
+    /* CSS */
+.button-30 {
+    align-items: center;
+    appearance: none;
+    background-image: radial-gradient(100% 100% at 100% 0, #db2133 0, #e72549 100%);
+    border: 0;
+    border-radius: 6px;
+    box-shadow: rgba(45, 35, 66, .4) 0 2px 4px,rgba(45, 35, 66, .3) 0 7px 13px -3px,rgba(58, 65, 111, .5) 0 -3px 0 inset;
+    box-sizing: border-box;
+    color: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    font-family: "JetBrains Mono",monospace;
+    height: 48px;
+    justify-content: center;
+    line-height: 1;
+    list-style: none;
+    overflow: hidden;
+    padding-left: 16px;
+    padding-right: 16px;
+    position: relative;
+    text-align: left;
+    text-decoration: none;
+    transition: box-shadow .15s,transform .15s;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    white-space: nowrap;
+    will-change: box-shadow,transform;
+    font-size: 18px;
+  }
+  
+  .button-30:focus {
+    box-shadow: #3c4fe0 0 0 0 1.5px inset, rgba(45, 35, 66, .4) 0 2px 4px, rgba(45, 35, 66, .3) 0 7px 13px -3px, #3c4fe0 0 -3px 0 inset;
+  }
+  
+  .button-30:hover {
+    box-shadow: rgba(45, 35, 66, .4) 0 4px 8px, rgba(45, 35, 66, .3) 0 7px 13px -3px, #3c4fe0 0 -3px 0 inset;
+    transform: translateY(-2px);
+  }
+  
+  .button-30:active {
+    box-shadow: #3c4fe0 0 3px 7px inset;
+    transform: translateY(2px);
+  }
+
+  .button-30 {
+    align-items: center;
+    appearance: none;
+    background-image: radial-gradient(100% 100% at 100% 0, #db2133 0, #e72549 100%);
+    border: 0;
+    border-radius: 6px;
+    box-shadow: rgba(45, 35, 66, .4) 0 2px 4px,rgba(45, 35, 66, .3) 0 7px 13px -3px,rgba(58, 65, 111, .5) 0 -3px 0 inset;
+    box-sizing: border-box;
+    color: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    font-family: "JetBrains Mono",monospace;
+    height: 48px;
+    justify-content: center;
+    line-height: 1;
+    list-style: none;
+    overflow: hidden;
+    padding-left: 16px;
+    padding-right: 16px;
+    position: relative;
+    text-align: left;
+    text-decoration: none;
+    transition: box-shadow .15s,transform .15s;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    white-space: nowrap;
+    will-change: box-shadow,transform;
+    font-size: 18px;
+  }
+  
+  .button-30:focus {
+    box-shadow: #3c4fe0 0 0 0 1.5px inset, rgba(45, 35, 66, .4) 0 2px 4px, rgba(45, 35, 66, .3) 0 7px 13px -3px, #3c4fe0 0 -3px 0 inset;
+  }
+  
+  .button-30:hover {
+    box-shadow: rgba(45, 35, 66, .4) 0 4px 8px, rgba(45, 35, 66, .3) 0 7px 13px -3px, #3c4fe0 0 -3px 0 inset;
+    transform: translateY(-2px);
+  }
+  
+  .button-30:active {
+    box-shadow: #3c4fe0 0 3px 7px inset;
+    transform: translateY(2px);
+  }
+
+.button-29 {
+  align-items: center;
+  appearance: none;
+  background-image:radial-gradient(100% 100% at 100% 0, #5adaff 0, #5468ff 100%);
+  border: 0;
+  border-radius: 6px;
+  box-shadow: rgba(45, 35, 66, .4) 0 2px 4px,rgba(45, 35, 66, .3) 0 7px 13px -3px,rgba(58, 65, 111, .5) 0 -3px 0 inset;
+  box-sizing: border-box;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: "JetBrains Mono",monospace;
+  height: 48px;
+  justify-content: center;
+  line-height: 1;
+  list-style: none;
+  overflow: hidden;
+  padding-left: 16px;
+  padding-right: 16px;
+  position: relative;
+  text-align: left;
+  text-decoration: none;
+  transition: box-shadow .15s,transform .15s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+  will-change: box-shadow,transform;
+  font-size: 18px;
+    }
+
+    .button-29:focus {
+    box-shadow: #3c4fe0 0 0 0 1.5px inset, rgba(45, 35, 66, .4) 0 2px 4px, rgba(45, 35, 66, .3) 0 7px 13px -3px, #3c4fe0 0 -3px 0 inset;
+    }
+
+    .button-29:hover {
+    box-shadow: rgba(45, 35, 66, .4) 0 4px 8px, rgba(45, 35, 66, .3) 0 7px 13px -3px, #3c4fe0 0 -3px 0 inset;
+    transform: translateY(-2px);
+    }
+
+    .button-29:active {
+    box-shadow: #3c4fe0 0 3px 7px inset;
+    transform: translateY(2px);
+    }
+    .cancel-button {
+        background-color: #cd0e0e;
+        color: #fff;
+        border: none;
+        {% comment %} padding: 12px 24px; {% endcomment %}
+        font-size: 16px;
+        cursor: pointer;
+        margin: 10px 5px;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+    }
+    </style>
+</head>
+
+<body>
+
+
+    <body class="security-body">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark security-navbar">
+            <div class="container-fluid">
+                <a class="navbar-brand text-white fs-4" href="/adminapp/">AntiVirus</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <!-- Profile/Account Icon -->
+                       
+                        <!-- Help Icon -->
+                        <!-- <li class="nav-item">
+                            <a class="nav-link security-nav-link" href="#"><i class="fas fa-question-circle"></i> Help</a>
+                        </li> -->
+                      
+                        {% comment %} <li class="nav-item">
+                            <a class="nav-link security-nav-link p-1" href="#"><i class="fa-regular fa-x fs-5"></i> </a>
+                        </li> {% endcomment %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    
+    
+        <!-- Sidebar and Content Layout -->
+        <div class="d-flex">
+            <!-- Sidebar  /OurFetures.html -->
+            <div class="security-sidebar">
+                <ul class="nav flex-column text-center">
+                    <li class="nav-item mb-2">
+                        <a href="/adminapp/" class="nav-link security-link active" data-bs-toggle="tooltip" data-bs-placement="right" title="Security">
+                            <i class="fas fa-shield-alt"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="/adminapp/get_install_app/" class="nav-link security-link" data-bs-toggle="tooltip" data-bs-placement="right" title="Features">
+                            <i class="fas fa-user-shield"></i>
+                        </a>
+                    </li>
+                    
+                </ul>
+            </div>
+    
+            <!-- Main Content -->
+            <div class="security-content">
+                <div class=" mt-2">
+                    <img src="https://i.ibb.co/Pj5RCww/certified-antivirus-emblem-logo-immune-your-data-1017-44194-removebg-preview.png" class="icon" alt="Virus Scanner Icon">
+    <h1 class="heading">DISK CLEANUP SUGGESTIONS</h1>
+    
+    <div class="drive-list">
+        {% for drive in drives %}
+        <div class="drive-item">
+            <input type="checkbox" class="drive-checkbox" name="drive_letters[]" value="{{ drive.drive }}">
+            <div class="drive-info">
+                <strong>{{ drive.drive }}</strong> - {{ drive.free }} GB free of {{ drive.total }} GB
+                <div class="drive-bar">
+                    <div class="drive-bar-filled" style="width: {{ drive.used_percentage }}%;"></div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+    </div>
+<br>
+    <button class="button-29" id="suggest-cleanup">Get Disk Cleanup Suggestions</button>
+    <a class="button-30" href="/adminapp/Diskcleanup/"> Cancel </a>
+    <div id="cleanup-results" class="table-container hidden"></div>
+    <button class="search-input hidden" id="delete-files">Delete Selected Files</button>
+                    
+                    </div>
+                    
+                    </div>
+                </div>
+            
+            </div>
+        </div>
+    
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        </script>
+    </body>
+
+<script>
+    document.getElementById('suggest-cleanup').addEventListener('click', async function () {
+        const button = document.getElementById('suggest-cleanup');
+        button.disabled = true;
+        button.innerText = "Loading...";
+    
+        const driveCheckboxes = document.querySelectorAll('.drive-checkbox:checked');
+        const selectedDrives = Array.from(driveCheckboxes).map(cb => cb.value);
+        if (selectedDrives.length === 0) {
+            alert("Please select at least one drive.");
+            button.disabled = false;
+            button.innerText = "Get Disk Cleanup Suggestions";
+            return;
+        }
+    
+        const resultDiv = document.getElementById('cleanup-results');
+        resultDiv.classList.add('hidden');
+        resultDiv.innerHTML = "Scanning...";
+    
+        try {
+            const response = await fetch(`/adminapp/scan_drive/${selectedDrives.join(',')}/`);
+            const data = await response.json();
+            resultDiv.classList.remove('hidden');
+    
+            // Display suggestions in a table
+            resultDiv.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Select</th>
+                            <th>File Path</th>
+                            <th>Size (MB)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.suggestions.map(s => `
+                            <tr>
+                                <td><input type="checkbox" class="file-checkbox" value="${s.file_path}"></td>
+                                <td>${s.file_path}</td>
+                                <td>${s.size_mb.toFixed(2)}</td>
+                            </tr>`).join('')}
+                    </tbody>
+                </table>`;
+    
+            document.getElementById('delete-files').classList.remove('hidden');
+        } catch (error) {
+            resultDiv.innerHTML = "Error: " + error.message;
+        } finally {
+            button.disabled = false;
+            button.innerText = "Get Disk Cleanup Suggestions";
+        }
+    });
+    document.getElementById('delete-files').addEventListener('click', async function () {
+        const fileCheckboxes = document.querySelectorAll('.file-checkbox:checked');
+        const selectedFiles = Array.from(fileCheckboxes).map(cb => cb.value);
+
+        if (selectedFiles.length === 0) {
+            alert("Please select at least one file to delete.");
+            return;
+        }
+
+        const confirmDelete = confirm("Are you sure you want to delete the selected files?");
+        if (!confirmDelete) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/adminapp/delete_files/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ files: selectedFiles }),
+            });
+
+            if (response.ok) {
+                alert("Files deleted successfully!");
+                document.getElementById('cleanup-results').innerHTML = "";
+                document.getElementById('cleanup-results').classList.add('hidden');
+                document.getElementById('delete-files').classList.add('hidden');
+            } else {
+                alert("Error deleting files: " + await response.text());
+            }
+        } catch (error) {
+            alert("Error: " + error.message);
+        }
+    });
+    // Toggle sidebar visibility
+    document.querySelector('.arrow-button').addEventListener('click', function () {
+        document.querySelector('.sidebar').classList.toggle('collapsed');
+    });
+</script>
+   
+   
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

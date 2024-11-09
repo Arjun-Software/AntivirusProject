@@ -162,3 +162,5 @@ QUARANTINE_DIR = os.path.join(BASE_DIR, 'quarantine')
 # Create the directory if it doesn't exist
 if not os.path.exists(QUARANTINE_DIR):
     os.makedirs(QUARANTINE_DIR)
+
+

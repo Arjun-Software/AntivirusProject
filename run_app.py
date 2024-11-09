@@ -17,7 +17,7 @@ js_navigation_controls = """
 const headerDiv = document.createElement('div');
 headerDiv.style.position = 'fixed';
 headerDiv.style.top = '0';
-headerDiv.style.left = '0';
+headerDiv.style.right = '0';
 headerDiv.style.width = '100%';
 headerDiv.style.backgroundColor = '#333';
 headerDiv.style.color = '#fff';
@@ -73,7 +73,7 @@ function styleButton(button) {
 """
 
 def open_webview():
-    window = webview.create_window('Antivirus Dashboard', 'http://127.0.0.1:8000/') 
+    window = webview.create_window('Antivirus Dashboard', 'http://127.0.0.1:8000/',width=1200,  height=600, resizable=False  ) 
     window.events.loaded += lambda: window.evaluate_js(js_navigation_controls)
     webview.start()
 

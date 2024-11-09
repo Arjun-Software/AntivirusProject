@@ -1,22 +1,15 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Disk Scanner</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Anti-Malware</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
-            margin: 0;
-            padding: 0;
-            text-align: center;
-        }
-        h1 {
-            color: #444;
-            margin-top: 20px;
-        }
         #startScanButton {
             background-color: #4CAF50;
             color: white;
@@ -27,6 +20,18 @@
             margin-bottom: 20px;
         }
         #startScanButton:hover {
+            background-color: #45a049;
+        }
+        #stopScanButton {
+            background-color: #e00b21;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        #stopScanButton:hover {
             background-color: #45a049;
         }
         #scanOutput {
@@ -40,6 +45,7 @@
             padding: 15px;
             overflow-y: scroll;
             white-space: pre-wrap;
+            color: #000;
         }
         .progress-bar {
             width: 80%;
@@ -66,78 +72,381 @@
         .scanning-file {
             color: #007bff;
         }
+        .security-body {
+            background-color: whitesmoke !important;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Sidebar styling */
+        .security-sidebar {
+            width: 70px;
+            background-color: #0a3b52;
+            min-height: 100vh;
+            padding-top: 20px;
+        }
+
+        .security-link {
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+        }
+
+        .security-link:hover,
+        .security-link.active {
+            background-color: #004b68;
+            color: #ffffff;
+        }
+
+        /* Navbar styling */
+        .security-navbar {
+            background-color: #0a3b52;
+            border-bottom: 1px solid #444444;
+            padding: 10px 0px;
+        }
+
+        .security-nav-link {
+            color: #ffffff;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+        }
+
+        .security-nav-link i {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        .security-nav-link:hover {
+            color: #cccccc;
+        }
+
+        /* Main content styling */
+        .security-content {
+            /* background-color: #333; */
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .protection-message {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .protection-message button {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .protection-message button:hover {
+            background-color: #0056b3;
+        }
+
+
+
+
+          /* General Styling */
+      
+
+
+
+        /* Header Section */
+        .title-section {
+            background-color: #3b3e47;
+            padding: 15px;
+            border-radius: 8px;
+            /* text-align: center; */
+        }
+
+        .title-section p {
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .title-section small {
+            color: #b3b3b3;
+            font-size: 0.9rem;
+        }
+
+        /* Button Styling */
+        .btn-full-protection {
+            background-color: #3a83f1;
+            color: #ffffff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        /* Protection Card Styling */
+        .protection-card {
+            /* width: 100%; */
+            background-color: #004B68;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .protection-card h5 {
+            font-size: 1rem;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .protection-card p {
+            font-size: 0.85rem;
+            color: #b3b3b3;
+            text-align: center;
+        }
+
+        /* Icon Styles */
+        .icon_dash {
+            font-size: 2rem;
+
+        }
+
+        .icon_dash.active {
+            color: #1fbb68;
+        }
+
+        .icon_dash.inactive {
+            color: #7f7f7f;
+        }
+
+        /* Toggle Switch Styling */
+        .form-switch .form-check-input {
+            width: 2.5em;
+            height: 1.2em;
+            /* margin-left: 0; */
+            background-color: #7f7f7f;
+        }
+
+        .form-switch .form-check-input:checked {
+            background-color: #1fbb68;
+        }
+        .form-check{
+            width: 90px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+
+        .table-custom th, .table-custom td {
+      text-align: center;
+      vertical-align: middle;
+    }
+    .check-icon {
+      color: green;
+    }
+    .cross-icon {
+      color: red;
+    }
+    .asterisk-icon {
+      color: #666;
+    }
+    .protection-card{
+        height: 180px;
+    }
+    a{
+        text-decoration: none;
+        color: white;
+    }
+    .scan-item {
+        margin-bottom: 10px;
+    }
+    
+    .scan-item .progress-bar {
+        width: 100%;
+        background-color: #f3f3f3;
+        border-radius: 4px;
+    }
+    
+    .scan-item .progress {
+        height: 20px;
+        background-color: #4CAF50;
+        line-height: 20px;
+        color: white;
+        text-align: center;
+    }
+    
     </style>
 </head>
+
 <body>
-    <h1>Disk Scanner</h1>
+
+
+    <body class="security-body">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark security-navbar">
+            <div class="container-fluid">
+                <a class="navbar-brand text-white fs-4" href="#">AntiVirus</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <!-- Profile/Account Icon -->
+                       
+                        <!-- Help Icon -->
+                        <!-- <li class="nav-item">
+                            <a class="nav-link security-nav-link" href="#"><i class="fas fa-question-circle"></i> Help</a>
+                        </li> -->
+                      
+                        <li class="nav-item">
+                            <a class="nav-link security-nav-link p-1" href="#"><i class="fa-regular fa-x fs-5"></i> </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
     
-    <button id="startScanButton" onclick="startScan()">Start Disk Scan</button>
+    
+        <!-- Sidebar and Content Layout -->
+        <div class="d-flex">
+            <!-- Sidebar -->
+            <div class="security-sidebar">
+                <ul class="nav flex-column text-center">
+                    <li class="nav-item mb-2">
+                        <a href="/adminapp/" class="nav-link security-link active" data-bs-toggle="tooltip" data-bs-placement="right" title="Security">
+                            <i class="fas fa-shield-alt"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="/adminapp/l" class="nav-link security-link" data-bs-toggle="tooltip" data-bs-placement="right" title="Features">
+                            <i class="fas fa-user-shield"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#" class="nav-link security-link" data-bs-toggle="tooltip" data-bs-placement="right" title="Performance">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#" class="nav-link security-link" data-bs-toggle="tooltip" data-bs-placement="right" title="More Tools">
+                            <i class="fas fa-tools"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+    
+            <!-- Main Content -->
+            <div class="security-content">
+                <div class="mt-2">
+                    <button id="startScanButton" onclick="startScan()">Start Disk Scan</button>
+                    <button id="stopScanButton" onclick="stopScan()" disabled>Stop Scan</button> <!-- New Stop Scan button -->
+        
+                    <div class="progress-bar">
+                        <div id="progress" class="progress">0%</div>
+                    </div>
+        
+                    <pre id="scanOutput"></pre>
+                </div>
+            </div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <div class="progress-bar">
-        <div id="progress" class="progress">0%</div>
-    </div>
-
-    <pre id="scanOutput"></pre>
-
-    <script>
-        function startScan() {
-            $('#scanOutput').text("");  // Clear previous output
-            $('#progress').css('width', '0%').text('0%');  // Reset progress bar
-
-            $.ajax({
-                url: 'http://127.0.0.1:8000/adminapp/scan_disk/',  // URL for the disk scanner view
-                type: 'POST',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                xhrFields: {
-                    onprogress: function(e) {
-                        const output = e.currentTarget.responseText.split('\n');
-                        const fileCount = output.length - 1;  // Adjust based on actual line count
-                        const progressPercentage = Math.min((fileCount / 100) * 100, 100);
-
-                        $('#progress').css('width', progressPercentage + '%').text(Math.round(progressPercentage) + '%');
-
-                        output.forEach(function(line) {
-                            if (line.includes("Scanning")) {
-                                $('#scanOutput').append(`<span class="scanning-file">${line}</span><br>`);
-                            } else if (line.includes("completed")) {
-                                $('#scanOutput').append(`<span class="scan-complete">${line}</span><br>`);
-                            } else if (line.includes("Error") || line.includes("Skipping")) {
-                                $('#scanOutput').append(`<span class="scan-error">${line}</span><br>`);
-                            } else {
-                                $('#scanOutput').append(line + '<br>');
-                            }
-                        });
-
-                        $('#scanOutput').scrollTop($('#scanOutput')[0].scrollHeight);  // Scroll to bottom
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            let scanRequest = null;  // Holds the AJAX request for aborting
+            let isScanning = false;  // Tracks the scanning state
+    
+            function startScan() {
+                $('#scanOutput').text("");  // Clear previous output
+                $('#overallProgress').css('width', '0%').text('0%');  // Reset overall progress bar
+                $('#startScanButton').prop('disabled', true);  // Disable Start button
+                $('#stopScanButton').prop('disabled', false);  // Enable Stop button
+                isScanning = true;
+            
+                scanRequest = $.ajax({
+                    url: 'http://127.0.0.1:8000/adminapp/scan_disk/',
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    xhrFields: {
+                        onprogress: function(e) {
+                            if (!isScanning) return;
+                
+                            const output = e.currentTarget.responseText.split('\n');
+                            output.forEach((line, index) => {
+                                if (line.trim()) {
+                                    let progressContainer = `
+                                        <div class="scan-item">
+                                            <div class="progress-bar mb-2" id="progressBar${index}">
+                                                <div class="progress" style="width: 0%;" id="progress${index}"></div>
+                                            </div>
+                                            <span>${line}</span>
+                                        </div>
+                                    `;
+                
+                                    if (!document.getElementById(`progressBar${index}`)) {
+                                        $('#scanOutput').append(progressContainer);
+                                    }
+                
+                                    let progressPercentage = Math.min(((index + 1) / output.length) * 100, 100);
+                                    $(`#progress${index}`).css('width', progressPercentage + '%').text(Math.round(progressPercentage) + '%');
+                
+                                    if (line.includes("completed")) {
+                                        $(`#progress${index}`).css('width', '100%').text('100%');
+                                    }
+                                }
+                            });
+                        }
+                    },
+                    error: function() {
+                        $('#scanOutput').append('<div class="scan-error">An error occurred during the scan.</div>');
+                        $('#startScanButton').prop('disabled', false);
+                        $('#stopScanButton').prop('disabled', true);
+                        isScanning = false;
                     }
-                },
-                success: function(data) {
-                    console.log('Scan completed:', data);
-                },
-                error: function(error) {
-                    console.error('Error during scan:', error);
-                    $('#scanOutput').append(`<span class="scan-error">Scan failed. Please try again later.</span><br>`);
-                }
-            });
-        }
-
-        // Helper function to get CSRF token
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
+                });
             }
-            return cookieValue;
-        }
-    </script>
-</body>
-</html>
+    
+            function stopScan() {
+                if (scanRequest && isScanning) {
+                    scanRequest.abort();  // Aborts the AJAX request
+                    isScanning = false;   // Stops the scanning state
+                    $('#startScanButton').prop('disabled', false); // Enable Start button
+                    $('#stopScanButton').prop('disabled', true);   // Disable Stop button
+                    $('#scanOutput').append('<div class="scan-error">Scan stopped by user.</div>');
+                }
+            }            
+    
+            // Helper function to get CSRF token
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            
+        </script>
+    </body>
+    </html

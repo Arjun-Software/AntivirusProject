@@ -1,5 +1,7 @@
+from pyexpat.errors import messages
 import subprocess
 import tempfile
+from tkinter import Tk, filedialog
 from django.shortcuts import render
 from django.http import JsonResponse
 import psutil
@@ -7,9 +9,20 @@ from rest_framework.views import APIView
 import requests
 import os
 import datetime
+import hashlib
 from Antivirusproject.settings import VIRUSTOTAL_API_KEY
 from .models import BlockedProgram
-
+import os
+import shutil
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .virustotal import scan_file_with_virustotal
+from django.conf import settings
+import win32api
+import base64
+import json
+from django.core.files.storage import default_storage
+QUARANTINE_DIR = settings.QUARANTINE_DIR
 # Create your views here.
 
 
@@ -93,10 +106,137 @@ class browserAPI(APIView):
 class qurantineAPI(APIView):
     def get(self,request):
         return render(request,'Antivirus/qurantine.html')
+    
+def scan_page(request):
+    return render(request, 'Antivirus/scan_page.html')
 
 class Diskcleanup(APIView):
     def get(self,request):
-        return render(request,'Antivirus/inner3.html')
+        drives = []
+        for partition in psutil.disk_partitions():
+            if os.name == 'nt' and 'cdrom' not in partition.opts:  # Windows-specific check
+                usage = psutil.disk_usage(partition.mountpoint)
+                used_percentage = ((usage.total - usage.free) / usage.total) * 100
+                
+                # Extract the drive letter without backslashes
+                drive_letter = os.path.splitdrive(partition.device)[0]
+                print("----drive_letter----",drive_letter)
+                drives.append({
+                    'drive': drive_letter,
+                    'total': usage.total // (1024 ** 3),  # Convert to GB
+                    'free': usage.free // (1024 ** 3),    # Convert to GB
+                    'used_percentage': used_percentage    # Pass used percentage to template
+                })
+        return render(request ,'Antivirus/diskcsuggestion.html', {'drives': drives})
+
+@csrf_exempt
+def delete_files(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        files = data.get('files', [])
+
+        deleted_files = []
+        errors = []
+
+        for file_path in files:
+            try:
+                os.remove(file_path)  # Attempt to delete the file
+                deleted_files.append(file_path)
+            except PermissionError:
+                errors.append(f"Permission denied: {file_path}")
+            except FileNotFoundError:
+                errors.append(f"File not found: {file_path}")
+            except Exception as e:
+                errors.append(f"Error deleting {file_path}: {str(e)}")
+
+        return JsonResponse({
+            'deleted_files': deleted_files,
+            'errors': errors
+        })
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+def get_available_drives(request):
+    # Get list of available drives
+    drives = win32api.GetLogicalDriveStrings()
+    print("=========",drives)
+    drive_list = [drive for drive in drives.split('\\') if drive]  # List of drives like ['C:\\', 'D:\\']
+    print("--------",drive_list)
+    return JsonResponse({'drives': drive_list})
+
+def scan_drive_for_cleanup(request, drive):
+    suggestions = []
+    # Function to scan the selected drive for large files
+    def scan_drive(drive):
+        if os.path.exists(drive):
+            for root, dirs, files in os.walk(drive):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    file_size = os.path.getsize(file_path)
+                    # Suggest files larger than 100 MB
+                    if file_size > 100 * 1024 * 1024:  # 100 MB
+                        print("-------file_path",file_path)
+                        suggestions.append({
+                            'file_path': file_path,
+                            'size_mb': file_size / (1024 * 1024),  # Size in MB
+                        })
+    # Scan the selected drive
+    scan_drive(drive)
+    print("======suggestions======",suggestions)
+    return JsonResponse({'suggestions': suggestions})
+
+def suggest_cleanup(request):
+    # Specify the drives you want to scan
+    drives = ['C:\\', 'D:\\','E:\\','F:\\']  # Add more drives as needed
+    suggestions = []
+
+    # Function to scan a drive for large files
+    def scan_drive(drive):
+        if os.path.exists(drive):
+            for root, dirs, files in os.walk(drive):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    file_size = os.path.getsize(file_path)
+                    # Suggest files larger than 100 MB
+                    if file_size > 100 * 1024 * 1024:  # 100 MB
+                        suggestions.append({
+                            'file_path': file_path,
+                            'size_mb': file_size / (1024 * 1024),  # Size in MB
+                        })
+
+    # Scan specified drives
+    for drive in drives:
+        scan_drive(drive)
+
+    return JsonResponse({'suggestions': suggestions})
+# def suggest_cleanup(request):
+#     # Paths to scan for cleanup
+#     user_temp_dir = os.path.join(os.environ['TEMP'])  # User's Temp directory
+#     system_temp_dir = r'C:\Windows\Temp'  # System Temp directory
+#     recycle_bin = r'C:\$Recycle.Bin'  # Recycle Bin path
+
+#     suggestions = []
+
+#     # Function to scan a directory for large files
+#     def scan_directory(directory):
+#         if os.path.exists(directory):
+#             for root, dirs, files in os.walk(directory):
+#                 for file in files:
+#                     file_path = os.path.join(root, file)
+#                     file_size = os.path.getsize(file_path)
+#                     # Suggest files larger than 1 MB
+#                     if file_size > 1024 * 1024:
+#                         suggestions.append({
+#                             'file_path': file_path,
+#                             'size_mb': file_size / (1024 * 1024),  # Size in MB
+#                         })
+
+#     # Scan specified directories
+#     scan_directory(user_temp_dir)
+#     scan_directory(system_temp_dir)
+#     scan_directory(recycle_bin)
+
+#     return JsonResponse({'suggestions': suggestions})
 
 class powersaverAPI(APIView):
     def get(self,request):
@@ -146,7 +286,7 @@ class scanUrlAPI(APIView):#this is done
             error_message = response_messages("failed", message, 500)
             return JsonResponse(error_message, safe=False, status=500)
 
-import base64         
+         
 
 class testfilescanAPI(APIView):
     def post(self,request):
@@ -363,11 +503,7 @@ class scanningbwoserurl(APIView):
     
 
     import requests
-import json
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.conf import settings
-from django.views.decorators.csrf import csrf_exempt
+
 
 # API Endpoints
 API_KEY = VIRUSTOTAL_API_KEY
@@ -542,12 +678,6 @@ def scan_system_files(request):
 
 
 # usb scanner 
-import os
-import requests
-from django.conf import settings
-from django.http import JsonResponse
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
 
 API_KEY = VIRUSTOTAL_API_KEY
 FILE_SCAN_API = 'https://www.virustotal.com/vtapi/v2/file/scan'
@@ -573,11 +703,11 @@ def scan_disk_files(drive_path):
             file_size_mb = os.path.getsize(file_path) / (1024 * 1024)
             
             # Skip files larger than 10 MB
-            if file_size_mb > 10:
-                yield f"Skipping {file_path} (Size: {file_size_mb:.2f} MB - exceeds 10 MB limit)\n"
-                continue
+            # if file_size_mb > 10:
+            #     yield f"Skipping {file_path} (Size: {file_size_mb:.2f} MB - exceeds 10 MB limit)\n"
+            #     continue
 
-            yield f"Scanning {file_path}...\n"
+            yield f"Scanning {file_path}... Size: {file_size_mb:.2f})...\n"
             
             # Simulate scan (replace this with actual scan function)
             scan_result = {"status": "success", "file": file_path}
@@ -939,25 +1069,69 @@ class getIPaddressAPI(APIView):
         ip_address = socket.gethostbyname(hostname)
         
         return JsonResponse({'ip': ip_address})
+import ctypes
+import sys
+import os
+
+# def is_admin():
+#     try:
+#         return ctypes.windll.shell32.IsUserAnAdmin()
+#     except:
+#         return False
+
+# if not is_admin():
+#     # Relaunch the script with admin privileges
+#     ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, 1)
+# else:
+#     # Your defrag command here
+#     os.system("defrag C: /U /V")
 
 class Diskfrigmentation(APIView):
-    def get(self,request):
-        return render(request,'Antivirus/inner2.html')
-    def post(self,request):
-        drive_letter = request.POST.get('drive_letter', 'C:')  # Default to C: drive for Windows
-        try:
-            # For Windows
-            if os.name == 'nt':  # Check if the OS is Windows
-                command = ['defrag', drive_letter, '/O', '/M']
-                subprocess.run(command, check=True)
+    def get(self, request):
+        # Get list of drives and their sizes
+        drives = []
+        for partition in psutil.disk_partitions():
+            if os.name == 'nt' and 'cdrom' not in partition.opts:  # Windows-specific check
+                usage = psutil.disk_usage(partition.mountpoint)
+                used_percentage = ((usage.total - usage.free) / usage.total) * 100
                 
+                # Extract the drive letter without backslashes
+                drive_letter = os.path.splitdrive(partition.device)[0]
+                print("----drive_letter----",drive_letter)
+                drives.append({
+                    'drive': drive_letter,
+                    'total': usage.total // (1024 ** 3),  # Convert to GB
+                    'free': usage.free // (1024 ** 3),    # Convert to GB
+                    'used_percentage': used_percentage    # Pass used percentage to template
+                })
+        
+        # Pass drive information to the template
+        return render(request, 'Antivirus/inner2.html', {'drives': drives})
+    def post(self, request):
+        # Get the selected drive letter from the POST data
+        drive_letter = request.POST.get('drive_letter') # Default to C: if no drive selected
+        try:
+            # For Windows OS
+            print("-------",drive_letter)
+            if os.name == 'nt':  # Check if the OS is Windows
+                command = ['defrag', drive_letter, '/O', '/M']  # Defragment with optimization and multi-threading
+                result = subprocess.run(command, check=True, capture_output=True, text=True)
+                message = f"Disk defragmentation started for {drive_letter}. Output: {result.stdout}"
             else:
-                command = ['e4defrag', '/path/to/directory']
-                subprocess.run(command, check=True)
-            return JsonResponse({'status': 'success', 'message': 'Disk defragmentation started.'})
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)})
+                # For Linux, as an example (this may vary based on the specific file system)
+                command = ['e4defrag', f'/mnt/{drive_letter}']
+                result = subprocess.run(command, check=True, capture_output=True, text=True)
+                message = f"Disk defragmentation started for {drive_letter}. Output: {result.stdout}"
+                
+            return JsonResponse({'status': 'success', 'message': message})
 
+        except subprocess.CalledProcessError as e:
+            # Handle cases where the command fails
+            return JsonResponse({'status': 'error', 'message': f"Error: {e.stderr.strip()}"})
+        except Exception as e:
+            # General exception handling
+            return JsonResponse({'status': 'error', 'message': str(e)})
+            
 def defrag_disk():
     # System command for Windows
     subprocess.run(["defrag", "C:"], shell=True)
@@ -1079,14 +1253,7 @@ class get_install_app(APIView):
 
 
 
-import os
-import shutil
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .virustotal import scan_file_with_virustotal
-from django.conf import settings
 
-QUARANTINE_DIR = settings.QUARANTINE_DIR
 
 
 @csrf_exempt
@@ -1439,73 +1606,79 @@ def get_chrome_history():
 print("---ds",get_chrome_history)
 
 
+import subprocess
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render
+
 def get_scan_results(scan_type=None):
     try:
+        # Choose the command based on the scan type
         if scan_type == "quick":
-            result = subprocess.run(
-                ["powershell", "-Command", "Start-MpScan -ScanType QuickScan"],
-                capture_output=True,
-                text=True
-            )
+            command = ["powershell", "-Command", "Start-MpScan -ScanType QuickScan"]
         elif scan_type == "full":
-            result = subprocess.run(
-                ["powershell", "-Command", "Start-MpScan -ScanType FullScan"],
-                capture_output=True,
-                text=True
-            )
+            command = ["powershell", "-Command", "Start-MpScan -ScanType FullScan"]
         elif scan_type == "retrieve":
-            result = subprocess.run(
-                ["powershell", "-Command", "Get-MpThreatDetection"],
-                capture_output=True,
-                text=True
-            )
+            command = ["powershell", "-Command", "Get-MpThreatDetection"]
+        else:
+            return {"error": "Invalid scan type provided."}
+
+        # Run the PowerShell command in a hidden window
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            creationflags=subprocess.CREATE_NO_WINDOW  # This hides the PowerShell window
+        )
+
+        # Check for errors
         if result.returncode != 0:
             error_message = result.stderr.strip()
             return {"error": f"Command failed with error: {error_message}"}
-     
+        # print("=--=",result)
+        # Parse the output
         lines = result.stdout.strip().splitlines() if result.stdout else []
         parsed_results = []
         entry = {}
-
+        # print("-*-***",lines)
         for line in lines:
             if line == "":
                 if entry:
-                    sl = {"Success":entry['ActionSuccess'],
-                    "start_scanning_time":entry['InitialDetectionTime'],
-                    "end_scanning_time":entry['LastThreatStatusChangeTime'],
-                    "ProcessName":entry['ProcessName'],
-                    "ThreatStatusErrorCode":entry['ThreatStatusErrorCode']
-                    }
-                    parsed_results.append(sl)
+                    parsed_results.append({
+                        "Success": entry.get('ActionSuccess'),
+                        "start_scanning_time": entry.get('InitialDetectionTime'),
+                        "end_scanning_time": entry.get('LastThreatStatusChangeTime'),
+                        "ProcessName": entry.get('ProcessName'),
+                        "ThreatStatusErrorCode": entry.get('ThreatStatusErrorCode')
+                    })
                     entry = {}
             elif ":" in line:
                 key, value = line.split(":", 1)
                 entry[key.strip()] = value.strip()
         
-        if entry:  # Append the last entry if present
-            sl = {"Success":entry['ActionSuccess'],
-                  "start_scanning_time":entry['InitialDetectionTime'],
-                  "end_scanning_time":entry['LastThreatStatusChangeTime'],
-                  "ProcessName":entry['ProcessName'],
-                  "ThreatStatusErrorCode":entry['ThreatStatusErrorCode']
-                  }
-            parsed_results.append(sl)
-        
+        # Append the last entry if any
+        if entry:
+            parsed_results.append({
+                "Success": entry.get('ActionSuccess'),
+                "start_scanning_time": entry.get('InitialDetectionTime'),
+                "end_scanning_time": entry.get('LastThreatStatusChangeTime'),
+                "ProcessName": entry.get('ProcessName'),
+                "ThreatStatusErrorCode": entry.get('ThreatStatusErrorCode')
+            })
+
         return parsed_results  # Return as list of dictionaries
     except Exception as e:
         return {"error": f"An exception occurred: {str(e)}"}
 
 @csrf_exempt
 def scan_results_view(request):
-    scan_type = request.GET.get("scan_type")  # default to "retrieve" if not provided
-    #   Antivirus/firewall.html  "Antivirus/fullscan.html"
-    print("88888888********",scan_type)
-    if scan_type is not None:
-        results = get_scan_results(scan_type)
-        return render(request, "Antivirus/fullscan.html",{'scan_results': results})
-    else:
-        return render(request, "Antivirus/fullscan.html")
-    
+    result = subprocess.run(["powershell", "-Command", "Get-ExecutionPolicy"], capture_output=True, text=True)
+    print("-*-*-*-*",result)
+    if "Restricted" in result.stdout:
+        print("Execution policy is restricted. Please change it to allow script execution.")
+    scan_type = request.GET.get("scan_type", "retrieve")
+    results = get_scan_results(scan_type)
+    return render(request, "Antivirus/fullscan.html", {'scan_results': results})
+   
 
 def stop_scan():
     try:
@@ -1554,3 +1727,286 @@ def stop_scan_view(request):
 
     results = stop_scan()
     return JsonResponse(results)
+
+
+def render_folderscan_page(request):
+    # Render the page with the form to select a folder path
+    return render(request, 'Antivirus/folder.html')
+
+
+
+# from Tkinter import *
+def select_folder(request):
+    """This view opens a folder selection dialog and returns the selected path."""
+    if request.method == "GET":
+        root = Tk()
+        root.withdraw()  # Hide the root window
+        folder_path = filedialog.askdirectory()  # Open dialog and get folder path
+        root.destroy()
+        
+        if folder_path:
+            print("-*--*-",folder_path)
+            return JsonResponse({"folder_path": folder_path})
+        else:
+            return JsonResponse({"error": "No folder selected."}, status=400)
+from datetime import datetime     
+def folderscanAPI(request):
+    if request.method == 'GET':
+        folder_path = request.GET.get('folder_path')
+        
+        # For debugging - print the received folder path
+        print("Folder path received:", folder_path)
+        
+        if folder_path:
+            defender_exe = r"C:\Program Files\Windows Defender\MpCmdRun.exe"
+            
+            # Check if the defender executable exists
+            if not os.path.exists(defender_exe):
+                return JsonResponse({"result": "Windows Defender is not installed at the expected path."}, status=400)
+
+            # Capture start time
+            start_time = datetime.now()
+
+            # Run Windows Defender command with specified folder
+            result = subprocess.run(
+                [defender_exe, "-Scan", "-ScanType", "3", "-File", folder_path],
+                capture_output=True,
+                text=True,
+                creationflags=subprocess.CREATE_NO_WINDOW
+            )
+            
+            # Capture end time
+            end_time = datetime.now()
+            
+            # Check the output to see if any threats were found
+            # print("*-*-*-",result.stdout)
+            # if "Threat" in result.stdout or "threat" in result.stdout:
+            #     threat_found = True
+            # else:
+            #     threat_found = False
+
+            # Prepare the JSON response with scan details
+            response_data = {
+                "folder_path": folder_path,
+                "start_time": start_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "end_time": end_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "duration": str(end_time - start_time),
+                "scan_result": result.stdout if result.stdout else result.stderr,
+                # "threat_found": threat_found,
+            }
+            print("**response_data",response_data)
+            # Return the JSON response with appropriate status
+            if result.returncode == 0:
+                response_data["status"] = "Scan completed successfully."
+            else:
+                response_data["status"] = "Scan encountered an issue."
+
+            return JsonResponse(response_data)
+        
+        return JsonResponse({"result": "No folder path specified."}, status=400)
+        # return render(request , 'Antivirus/folder.html')
+    
+    if request.method == 'POST':
+        try:
+            
+            folder_path =  request.POST.get('folder_path')
+            # Path to Windows Defender's MpCmdRun executable
+            defender_exe = r"C:\Program Files\Windows Defender\MpCmdRun.exe"
+            
+            # Check if the defender executable exists
+            if not os.path.exists(defender_exe):
+                return "Windows Defender is not installed at the expected path."
+
+            # Run Windows Defender command with specified folder
+            result = subprocess.run(
+                [defender_exe, "-Scan", "-ScanType", "3", "-File", folder_path],
+                capture_output=True,
+                text=True
+            )
+
+            # Check result and return output
+            if result.returncode == 0:
+                print("**************",result)
+                return f"Scan completed successfully:\n{result.stdout}"
+            else:
+                return f"Scan failed:\n{result.stderr}"
+        except Exception as e:
+            return f"An error occurred: {str(e)}"
+        
+@csrf_exempt  # Use with caution, ideally use CSRF protection for form submissions
+def game_booster(request):
+    message = None  # Variable to hold the response message
+    
+    if request.method == 'POST' and 'game_file' in request.FILES:
+        game_file = request.FILES['game_file']
+        game_file_path = default_storage.save(game_file.name, game_file)
+        full_file_path = default_storage.path(game_file_path)  # Get the full path to the saved file
+        
+        # Start the game process
+        process = subprocess.Popen(full_file_path)
+        
+        # Set high priority for the game process
+        game_process = psutil.Process(process.pid)
+        game_process.nice(psutil.HIGH_PRIORITY_CLASS)  # For Windows
+        
+        # Set a success message
+        message = f'Boosted {game_file.name} to high priority and launched it!'
+
+    return render(request, 'Antivirus/game_booster.html', {'message': message})
+
+
+ADOBE_SIGN_API_BASE_URL = "https://api.adobesign.com/api/rest/v6"
+ADOBE_CLIENT_ID = "your_client_id"
+ADOBE_CLIENT_SECRET = "your_client_secret"
+ADOBE_ACCESS_TOKEN = "your_access_token"
+
+# views.py
+import requests
+from django.conf import settings
+from django.http import JsonResponse
+
+
+def send_document_for_signature(request):
+    url = f"{settings.ADOBE_SIGN_API_BASE_URL}/agreements"
+    headers = {
+        "Authorization": f"Bearer {settings.ADOBE_ACCESS_TOKEN}",
+        "Content-Type": "application/json",
+    }
+    data = {
+        "fileInfos": [{"name": "your_document.pdf"}],  # Replace with actual file details
+        "name": "Agreement Document",
+        "participantSetsInfo": [{
+            "memberInfos": [{"email": "signer@example.com"}],  # Replace with signer details
+            "role": "SIGNER"
+        }],
+        "signatureType": "ESIGN",
+        "state": "IN_PROCESS"
+    }
+    response = requests.post(url, headers=headers, json=data)
+    
+    if response.status_code == 200:
+        return JsonResponse(response.json(), status=200)
+    else:
+        return JsonResponse(response.json(), status=response.status_code)
+
+def upload_document():
+    url = f"{settings.ADOBE_SIGN_API_BASE_URL}/transientDocuments"
+    headers = {
+        "Authorization": f"Bearer {settings.ADOBE_ACCESS_TOKEN}",
+    }
+    files = {
+        'File': ('document.pdf', open('path/to/document.pdf', 'rb')),
+    }
+    response = requests.post(url, headers=headers, files=files)
+    
+    if response.status_code == 200:
+        return response.json().get("transientDocumentId")
+    else:
+        raise Exception("Document upload failed.")
+
+battery_saver_mode = False  # Global variable to track Battery Saver mode status
+
+def battery_status(request):
+    global battery_saver_mode
+    
+    # Handle POST request to toggle Battery Saver mode
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'enable':
+            battery_saver_mode = True
+            messages.success(request, "Battery Saver Mode Enabled.")
+        elif action == 'disable':
+            battery_saver_mode = False
+            messages.success(request, "Battery Saver Mode Disabled.")
+    
+    # Check battery status
+    battery = psutil.sensors_battery()
+    if battery is None:
+        battery_info = "No battery found on this system."
+        battery_status = None
+        battery_percentage = None
+        status = None
+    else:
+        battery_percentage = battery.percent
+        plugged = battery.power_plugged
+        battery_status = "Charging" if plugged else "Not Charging"
+        battery_info = f"Battery: {battery_percentage}% - {battery_status}"
+
+    return render(request, 'Antivirus/battery_status.html', {
+        'battery_info': battery_info,
+        'battery_percentage': battery_percentage,
+        'battery_status': battery_status,
+        'battery_saver_mode': battery_saver_mode
+    })
+
+
+# Global variable to control the scanning process
+scan_running = False
+
+def compute_file_hash(file_path, hash_algorithm='sha256'):
+    hash_func = hashlib.new(hash_algorithm)
+    try:
+        with open(file_path, 'rb') as file:
+            while chunk := file.read(8192):
+                hash_func.update(chunk)
+        return hash_func.hexdigest()
+    except (FileNotFoundError, PermissionError) as e:
+        print(f"Error reading {file_path}: {e}")
+        return None
+
+def scan_directory(directory, scan_type='quick'):
+    global scan_running
+    scan_running = True  # Set scan running flag to True
+    scanned_files = []
+
+    try:
+        for dirpath, _, filenames in os.walk(directory):
+            if not scan_running:  # Check if the scan should stop
+                print("Scan stopped by user.")
+                break
+
+            for filename in filenames:
+                file_path = os.path.join(dirpath, filename)
+                file_hash = compute_file_hash(file_path)
+                if file_hash:
+                    scanned_files.append(file_path)
+    except PermissionError:
+        print(f"Skipping directory due to permission issues: {directory}")
+    except Exception as e:
+        print(f"Error during scanning: {e}")
+
+    return scanned_files
+
+def stop_scan():
+    global scan_running
+    scan_running = False  # Set scan running flag to False
+
+@csrf_exempt
+def scan_api(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        scan_type = data.get('scan_type')
+        drive = data.get('drive')
+
+        if scan_type == 'quick':
+            if not drive:
+                return JsonResponse({'error': 'Drive not specified'}, status=400)
+
+            scanned_files = scan_directory(drive, scan_type='quick')
+            return JsonResponse({'status': 'Quick scan completed', 'scanned_files': scanned_files})
+
+        elif scan_type == 'full':
+            scanned_files = scan_directory('/')
+            return JsonResponse({'status': 'Full scan completed', 'scanned_files': scanned_files})
+
+        else:
+            return JsonResponse({'error': 'Invalid scan type'}, status=400)
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=405)    
+
+@csrf_exempt
+def stop_scan_api(request):
+    if request.method == 'POST':
+        stop_scan()  # Stop the ongoing scan
+        return JsonResponse({'status': 'Scan stopped successfully'})
+    return JsonResponse({'error': 'Invalid request method'}, status=405)

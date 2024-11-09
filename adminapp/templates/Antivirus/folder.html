@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Folder Scan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Body styling */
+        .security-body {
+            background-color: #f5f8fa;
+            color: #333;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Sidebar styling */
+        .security-sidebar {
+            width: 70px;
+            background-color: #1d1e22;
+            min-height: 100vh;
+            padding-top: 20px;
+        }
+
+        .security-link {
+            color: #e0e0e0;
+            padding: 20px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+        }
+
+        .security-link:hover,
+        .security-link.active {
+            background-color: #3a3b3e;
+            color: #ffffff;
+        }
+
+        /* Navbar styling */
+        .security-navbar {
+            background-color: #1d1e22;
+            border-bottom: 1px solid #444444;
+            padding: 10px 0;
+        }
+
+        .security-nav-link {
+            color: #ffffff;
+            font-size: 16px;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .security-nav-link:hover {
+            color: #cccccc;
+        }
+
+        /* Main content styling */
+        .security-content {
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        /* Button Styling */
+        button {
+            background-color: #004b68;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:disabled {
+            background-color: #7a7a7a;
+            cursor: not-allowed;
+        }
+
+        button:hover:enabled {
+            background-color: #007bff;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #ffffff;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        td {
+            color: #333;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #e8f5ff;
+        }
+
+        /* Loading indicator */
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            font-style: italic;
+            color: #666;
+        }
+    </style>
+</head>
+<body class="security-body">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark security-navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white fs-4" href="/adminapp/">AntiVirus</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link security-nav-link p-1" href="/adminapp/"><i class="fa-regular fa-x fs-5"></i></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Sidebar and Content Layout -->
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="security-sidebar">
+            <ul class="nav flex-column text-center">
+                <li class="nav-item mb-2">
+                    <a href="/adminapp/" class="nav-link security-link active" data-bs-toggle="tooltip" title="Security">
+                        <i class="fas fa-shield-alt"></i>
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="/adminapp/" class="nav-link security-link" data-bs-toggle="tooltip" title="Features">
+                        <i class="fas fa-user-shield"></i>
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="/adminapp/" class="nav-link security-link" data-bs-toggle="tooltip" title="Performance">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="/adminapp/" class="nav-link security-link" data-bs-toggle="tooltip" title="More Tools">
+                        <i class="fas fa-tools"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <!-- Main Content -->
+        <div class="security-content">
+            <div class="mt-2">
+                <button id="select-folder">Select Folder</button>
+                <button id="start-scan" disabled>Start Scan</button>
+                <a href="/adminapp/render_folderscan_page" >
+                <button href="/adminapp/" id="start-scan">Cancel Scan</button>
+            </a>
+                <div id="result" class="hidden"></div>
+                <div id="loading-indicator" class="loading hidden">Scanning... Please wait.</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let folderPath = "";
+
+        document.getElementById('select-folder').addEventListener('click', async function() {
+            const resultDiv = document.getElementById('result');
+            const loadingIndicator = document.getElementById('loading-indicator');
+            resultDiv.classList.add('hidden');
+            resultDiv.textContent = "";
+            loadingIndicator.classList.add('hidden');
+            
+            try {
+                const response = await fetch('/adminapp/folderscan/select_folder/');
+                const data = await response.json();
+
+                if (data.folder_path) {
+                    folderPath = data.folder_path;
+                    alert("Selected folder: " + folderPath);
+                    document.getElementById('start-scan').disabled = false;
+                } else {
+                    alert("No folder selected.");
+                }
+            } catch (error) {
+                alert("An error occurred: " + error.message);
+            }
+        });
+
+        document.getElementById('start-scan').addEventListener('click', async function() {
+            if (!folderPath) return alert("Please select a folder first.");
+
+            const resultDiv = document.getElementById('result');
+            const loadingIndicator = document.getElementById('loading-indicator');
+            resultDiv.classList.remove('hidden');
+            loadingIndicator.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`/adminapp/folderscanAPI/?folder_path=${encodeURIComponent(folderPath)}`);
+                const data = await response.json();
+
+                loadingIndicator.classList.add('hidden');
+
+                resultDiv.innerHTML = `
+                    <table>
+                        <tr>
+                            <th>Folder Path</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Duration</th>
+                            <th>Threat Found</th>
+                            <th>Scan Result</th>
+                        </tr>
+                        <tr>
+                            <td>${data.folder_path || "N/A"}</td>
+                            <td>${data.start_time || "N/A"}</td>
+                            <td>${data.end_time || "N/A"}</td>
+                            <td>${data.duration || "N/A"}</td>
+                            <td>${data.threat_found ? "Yes" : "No"}</td>
+                            <td><pre>${data.scan_result || "No result"}</pre></td>
+                        </tr>
+                    </table>
+                `;
+            } catch (error) {
+                loadingIndicator.classList.add('hidden');
+                resultDiv.innerHTML = "An error occurred: " + error.message;
+            }
+        });
+    </script>
+</body>
+</html>

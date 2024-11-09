@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security UI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* Body styling */
+        .security-body {
+            background-color: #0a3b52;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Sidebar styling */
+        .security-sidebar {
+            width: 70px;
+            background-color: #004b68;
+            min-height: 100vh;
+            padding-top: 20px;
+            transition: width 0.3s;
+        }
+
+        .security-sidebar.active {
+            width: 250px; /* Expanded width */
+        }
+
+        .security-link {
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+        }
+
+        .security-link:hover,
+        .security-link.active {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+
+        /* Navbar styling */
+        .security-navbar {
+            background-color: #0a3b52;
+            border-bottom: 1px solid #444444;
+            padding: 10px 0px;
+        }
+
+        .security-nav-link {
+            color: #ffffff;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+        }
+
+        .security-nav-link i {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        .security-nav-link:hover {
+            color: #cccccc;
+        }
+
+        /* Main content styling */
+        .security-content {
+            padding: 20px;
+            flex-grow: 1;
+            text-align:center ;
+        }
+
+        /* Form styling */
+        .file-upload {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #004b68;
+            border-radius: 8px;
+        }
+
+        .file-upload input[type="file"] {
+            display: block;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        .btn-upload {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .btn-upload:hover {
+            background-color: #0056b3;
+        }
+        .cancel-button {
+            background-color: #cd0e0e;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            margin:5px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="security-body">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark security-navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white fs-4" href="/adminapp/">AntiVirus</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link security-nav-link p-1" href="/adminapp/"><i class="fa-regular fa-x fs-5"></i> </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar and Content Layout -->
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="security-sidebar">
+            <ul class="nav flex-column text-center">
+                <li class="nav-item mb-2">
+                    <a href="/adminapp/" class="nav-link security-link active" data-bs-toggle="tooltip" data-bs-placement="right" title="Security">
+                        <i class="fas fa-shield-alt"></i>
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="" class="nav-link security-link" data-bs-toggle="tooltip" data-bs-placement="right" title="Features">
+                        <i class="fas fa-user-shield"></i>
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="" class="nav-link security-link" data-bs-toggle="tooltip" data-bs-placement="right" title="Performance">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="" class="nav-link security-link" data-bs-toggle="tooltip" data-bs-placement="right" title="More Tools">
+                        <i class="fas fa-tools"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="security-content">
+            <div class="file-upload">
+                <h3 class="text-center">Game Booster</h3>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="file" class="form-control w-25" name="game_file" accept=".exe" 
+                    required>
+                    <button type="submit" class="btn-upload">Boost Game</button>
+                </form>
+                <br> 
+    <a  href="/adminapp/Diskcleanup/"> <button class="cancel-button">Cancel</button> </a>
+
+                {% if message %}
+                    <div class="message alert alert-success">
+                        {{ message }}
+                    </div>
+               {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    </script>
+</body>
+
+</html>

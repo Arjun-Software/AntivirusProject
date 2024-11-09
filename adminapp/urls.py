@@ -20,6 +20,11 @@ urlpatterns = [
     path('qurantineAPI/', views.qurantineAPI.as_view() , name='qurantineAPI'),
     path('Diskfrigmentation/', views.Diskfrigmentation.as_view() , name='Diskfrigmentation'),
     path('Diskcleanup/', views.Diskcleanup.as_view() , name='Diskcleanup'),
+    path('suggest_cleanup/', views.suggest_cleanup, name='suggest_cleanup'),
+    path('available_drives/', views.get_available_drives, name='available_drives'),
+    path('scan_drive/<str:drive>/', views.scan_drive_for_cleanup, name='scan_drive'),
+    path('delete_files/', views.delete_files, name='delete_files'),
+    # path('ScanWithDefender/<str:drive>/', views.ScanWithDefender.as_view() , name='ScanWithDefender'),
     path('powersaverAPI/', views.powersaverAPI.as_view() , name='powersaverAPI'),
     path('gamespeedAPI/', views.gamespeedAPI.as_view() , name='gamespeedAPI'),
     path('getIPaddressAPI/', views.getIPaddressAPI.as_view() , name='getIPaddressAPI'),
@@ -37,6 +42,17 @@ urlpatterns = [
     path('DefenderAPI/', views.DefenderAPI.as_view(), name='defender_actions'),
     path('scan_results_view/', views.scan_results_view, name='scan_results_view'),
     path('stop_scan_view/', views.stop_scan_view, name='stop_scan_view'),
+    path('render_folderscan_page/', views.render_folderscan_page, name='render_folderscan_page'),
+    path('folderscan/select_folder/', views.select_folder, name='select_folder'),
+    path('folderscanAPI/', views.folderscanAPI, name='folderscanAPI'),
+    path('game_booster/', views.game_booster, name='game_booster'),
+    path('send-document-for-signature/', views.send_document_for_signature, name='send_document_for_signature'),
+    path('upload-document/', views.upload_document, name='upload_document'),
+    path('battery_status/', views.battery_status, name='battery_status'),
+    path('scan-api/', views.scan_api, name='scan_api'),
+    path('scan/', views.scan_page, name='scan_page'),
+    path('stop-scan-api/', views.stop_scan_api, name='stop_scan_api'),
+
 ]
 
 ''' 

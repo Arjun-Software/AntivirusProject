@@ -1,30 +1,201 @@
-<!-- monitoring/templates/monitoring/system_status.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Status</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <style>
-        body { font-family: Arial, sans-serif; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        table, th, td { border: 1px solid black; padding: 8px; }
-        th { background-color: #f2f2f2; }
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fa;
+            color: #333;
+        }
+
+        /* Sidebar styling */
+        .security-sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            height: 100vh;
+            padding-top: 20px;
+        }
+
+        .security-link {
+            color: #ecf0f1;
+            padding: 15px;
+            font-size: 18px;
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .security-link:hover, .security-link.active {
+            background-color: #34495e;
+            color: #fff;
+        }
+
+        /* Navbar styling */
+        .security-navbar {
+            background-color: #2980b9;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .security-nav-link {
+            color: #fff;
+            padding: 10px 15px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .security-nav-link:hover {
+            background-color: #1abc9c;
+        }
+
+        .security-nav-link i {
+            margin-right: 10px;
+        }
+
+        /* Content Area */
+        .security-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #2980b9;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th, table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #2980b9;
+            color: #fff;
+        }
+
+        table td {
+            background-color: #f9f9f9;
+        }
+
+        .btn-action {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .btn-action:hover {
+            background-color: #1abc9c;
+        }
+
+        .alert-info {
+            margin-top: 20px;
+            background-color: #ecf0f1;
+            color: #2980b9;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .card {
+            border-radius: 8px;
+            background-color: #ecf0f1;
+            padding: 20px;
+        }
     </style>
 </head>
 <body>
-    <h1>System Status Dashboard</h1>
-    <table>
-        <tr><th>Metric</th><th>Value</th></tr>
-        <tr><td>CPU Usage</td><td>{{ system_info.cpu_percent }}%</td></tr>
-        <tr><td>Total Memory</td><td>{{ system_info.total_memory|floatformat:2 }} bytes</td></tr>
-        <tr><td>Used Memory</td><td>{{ system_info.used_memory|floatformat:2 }} bytes</td></tr>
-        <tr><td>Memory Usage</td><td>{{ system_info.memory_percent }}%</td></tr>
-        <tr><td>Total Disk Space</td><td>{{ system_info.total_disk|floatformat:2 }} bytes</td></tr>
-        <tr><td>Used Disk Space</td><td>{{ system_info.used_disk|floatformat:2 }} bytes</td></tr>
-        <tr><td>Disk Usage</td><td>{{ system_info.disk_percent }}%</td></tr>
-        <tr><td>System Boot Time</td><td>{{ system_info.boot_time }}</td></tr>
-        <tr><td>Operating System</td><td>{{ system_info.platform }} {{ system_info.platform_release }}</td></tr>
-        <tr><td>OS Version</td><td>{{ system_info.platform_version }}</td></tr>
-    </table>
+
+    <div class="security-body">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark security-navbar">
+            <div class="container-fluid">
+                <a class="navbar-brand fs-4" href="/adminapp/">AntiVirus</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link security-nav-link" href="/adminapp/"><i class="fas fa-home"></i> Home</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    
+        <!-- Sidebar -->
+        <div class="d-flex">
+            <div class="security-sidebar">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a href="/adminapp/" class="security-link active">
+                            <i class="fas fa-shield-alt"></i> Security
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/adminapp/features" class="security-link">
+                            <i class="fas fa-cogs"></i> Features
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/adminapp/performance" class="security-link">
+                            <i class="fas fa-tachometer-alt"></i> Performance
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/adminapp/tools" class="security-link">
+                            <i class="fas fa-tools"></i> More Tools
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Main Content -->
+            <div class="security-content">
+                <h1>System Status Dashboard</h1>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h3>System Information:</h3>
+                        <table>
+                            <tr><th>Metric</th><th>Value</th></tr>
+                            <tr><td>CPU Usage</td><td>{{ system_info.cpu_percent }}%</td></tr>
+                            <tr><td>Total Memory</td><td>{{ system_info.total_memory|floatformat:2 }} bytes</td></tr>
+                            <tr><td>Used Memory</td><td>{{ system_info.used_memory|floatformat:2 }} bytes</td></tr>
+                            <tr><td>Memory Usage</td><td>{{ system_info.memory_percent }}%</td></tr>
+                            <tr><td>Total Disk Space</td><td>{{ system_info.total_disk|floatformat:2 }} bytes</td></tr>
+                            <tr><td>Used Disk Space</td><td>{{ system_info.used_disk|floatformat:2 }} bytes</td></tr>
+                            <tr><td>Disk Usage</td><td>{{ system_info.disk_percent }}%</td></tr>
+                            <tr><td>System Boot Time</td><td>{{ system_info.boot_time }}</td></tr>
+                            <tr><td>Operating System</td><td>{{ system_info.platform }} {{ system_info.platform_release }}</td></tr>
+                            <tr><td>OS Version</td><td>{{ system_info.platform_version }}</td></tr>
+                        </table>
+
+                        <button class="btn-action">Update Status</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

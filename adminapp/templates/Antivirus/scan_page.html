@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Antivirus Scan</title>
+    <script>
+        function startScan(scanType) {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').innerText = '';
+
+            const drive = document.getElementById('drive').value;
+            if (scanType === 'quick' && !drive) {
+                alert('Please select a drive to scan.');
+                document.getElementById('loading').style.display = 'none';
+                return;
+            }
+
+            fetch('/adminapp/scan-api/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ scan_type: scanType, drive: drive })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+                if (data.status) {
+                    document.getElementById('results').innerText = 'Scan completed. Files scanned:\n' + data.scanned_files.join('\n');
+                } else {
+                    document.getElementById('results').innerText = 'Error: ' + data.error;
+                }
+            });
+        }
+
+        function stopScan() {
+            fetch('/adminapp/stop-scan-api/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    alert('Scan stopped successfully.');
+                } else {
+                    alert('Error stopping scan.');
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Antivirus Scan</h1>
+    <label for="drive">Select Drive:</label>
+    <select id="drive">
+        <option value="">--Select a Drive--</option>
+        <option value="C:\\">C:</option>
+        <option value="D:\\">D:</option>
+        <option value="E:\\">E:</option>
+        <!-- Add more options as needed -->
+    </select>
+    <br><br>
+    <button onclick="startScan('quick')">Start Quick Scan</button>
+    <button onclick="startScan('full')">Start Full Scan</button>
+    <a>
+    <button onclick="stopScan()" href="/adminapp/scan/">Stop Scan</button>
+</a>
+    <div id="loading" style="display:none;">Scanning... Please wait.</div>
+    <pre id="results"></pre>
+</body>
+</html>

@@ -3,147 +3,536 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Disk Defragmentation - VirusTotal Scan</title>
+    <title>Disk Defragmentation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #191932;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        body{
+            background-color: #0a3b52;
         }
-        .container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 400px;
-        }
-        h2 {
+
+        .container{
             text-align: center;
-            color: #333;
         }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
-        }
-        .form-group input[type="file"],
-        .form-group button {
+
+        .drive-list {
+            justify-content: center;
+            display: flex;
+            flex-direction: row;
             width: 100%;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+            margin: auto;
         }
-        .form-group button {
-            background-color: #28a745;
-            color: white;
-            cursor: pointer;
+   
+        /* Style for the drive item */
+        .drive-item {
+            display: flex; /* Use flexbox for layout */
+            align-items: center; /* Center items vertically */
+            background-color: #f9f9f9; /* Light background color */
+            border: 1px solid #ddd; /* Light border */
+            border-radius: 5px; /* Rounded corners */
+            padding: 15px; /* Padding inside the item */
+            margin: 10px; /* Vertical margin between items */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
         }
-        .form-group button:hover {
-            background-color: #218838;
+
+        /* Style for the checkbox */
+        .drive-checkbox {
+            margin-top: 25px;
+            margin-right: 15px; /* Space between checkbox and text */
+            transform: scale(1.2); /* Increase size of checkbox */
         }
-        .result {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: #f8f9fa;
-            display: none;
+
+        /* Style for the drive info */
+        .drive-info {
+            flex: 1; /* Allow the info section to take available space */
+            color: #000;
         }
+
+        /* Style for the drive bar */
+        .drive-bar {
+            background-color: #e0e0e0; /* Light gray background for the bar */
+            border-radius: 5px; /* Rounded corners */
+            overflow: hidden; /* Hide overflow for filled part */
+            height: 10px; /* Height of the bar */
+            margin-top: 10px; /* Space above the bar */
+        }
+
+        /* Style for the filled part of the drive bar */
+        .drive-bar-filled {
+            background-color: #4caf50; /* Green color for used space */
+            height: 100%; /* Fill the height of the bar */
+            transition: width 0.3s ease; /* Smooth transition for width change */
+        }
+
+        h2 {
+            font-size: 2.5em; /* Increase font size */
+            font-weight: bold; /* Make it bold */
+            color: #ffffff; /* White color for contrast */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
+            margin: 20px 0; /* Add margin for spacing */
+            padding: 10px; /* Add padding for better appearance */
+            border-bottom: 2px solid #4caf50; /* Optional: add a bottom border */
+        }
+
+        /* Style for the button */
+        button {
+            background-color: #4caf50; /* Green background */
+            color: white; /* White text */
+            border: none; /* Remove default border */
+            padding: 10px 20px; /* Add padding */
+            text-align: center; /* Center text */
+            text-decoration: none; /* Remove underline */
+            display: inline-block; /* Allow margin and padding */
+            font-size: 16px; /* Increase font size */
+            margin: 10px 0; /* Add vertical margin */
+            cursor: pointer; /* Change cursor to pointer */
+            border-radius: 5px; /* Rounded corners */
+            transition: background-color 0.3s ease; /* Smooth transition */
+        }
+
+        /* Change background color on hover */
+        button:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+
+        /* Style for the result section */
+        #result {
+            background-color: #f9f9f9; /* Light background color */
+            border: 1px solid #ddd; /* Light border */
+            border-radius: 5px; /* Rounded corners */
+            padding: 20px; /* Padding inside the result box */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        }
+
+        /* Style for the heading */
+        #result h3 {
+            font-size: 1.8em; /* Increase font size */
+            color: #333; /* Dark text color */
+            margin-bottom: 10px; /* Space below the heading */
+        }
+
+        /* Style for the preformatted text */
+        #resultText {
+            font-family: 'Courier New', Courier, monospace; /* Monospace font for code */
+            background-color: #e8e8e8; /* Light gray background for text */
+            padding: 10px; /* Padding inside the preformatted text */
+            border-radius: 5px; /* Rounded corners */
+            overflow-x: auto; /* Allow horizontal scrolling */
+            color:  #333; /* Dark text color */
+
+    }
+
+    /* Body styling */
+    .security-body {
+        background-color: #0a3b52;
+        color: white;
+        font-family: Arial, sans-serif;
+    }
+
+    /* Sidebar styling */
+    .security-sidebar {
+        width: 70px;
+        background-color: #0a3b52;
+        min-height: 100vh;
+        padding-top: 20px;
+    }
+
+    .security-link {
+        color: #ffffff;
+        padding: 20px;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 25px;
+    }
+
+    .security-link:hover,
+    .security-link.active {
+        background-color: #004b68;
+        color: #ffffff;
+    }
+
+    /* Navbar styling */
+    .security-navbar {
+        background-color: #0a3b52;
+        border-bottom: 1px solid #444444;
+        padding: 10px 0px;
+    }
+
+    .security-nav-link {
+        color: #ffffff;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        padding: 0 15px;
+    }
+
+    .security-nav-link i {
+        margin-right: 8px;
+        font-size: 18px;
+    }
+
+    .security-nav-link:hover {
+        color: #cccccc;
+    }
+
+    /* Main content styling */
+    .security-content {
+        /* background-color: #333; */
+        padding: 20px;
+        flex-grow: 1;
+        text-align: center;
+    }
+
+    .protection-message {
+        background-color: #1e1e1e;
+        padding: 20px;
+        border-radius: 10px;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .protection-message button {
+        background-color: #007bff;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .protection-message button:hover {
+        background-color: #0056b3;
+    }
+
+
+
+
+      /* General Styling */
+  
+
+
+
+    /* Header Section */
+    .title-section {
+        background-color: #3b3e47;
+        padding: 15px;
+        border-radius: 8px;
+        /* text-align: center; */
+    }
+
+    .title-section p {
+        font-size: 1.1rem;
+        margin: 0;
+    }
+
+    .title-section small {
+        color: #b3b3b3;
+        font-size: 0.9rem;
+    }
+
+    /* Button Styling */
+    .btn-full-protection {
+        background-color: #3a83f1;
+        color: #ffffff;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 15px;
+        text-align: center;
+    }
+
+    /* Protection Card Styling */
+    .protection-card {
+        /* width: 100%; */
+        background-color: #004B68;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .protection-card h5 {
+        font-size: 1rem;
+        margin-top: 10px;
+        margin-bottom: 5px;
+        text-align: center;
+    }
+
+    .protection-card p {
+        font-size: 0.85rem;
+        color: #b3b3b3;
+        text-align: center;
+    }
+
+    /* Icon Styles */
+    .icon_dash {
+        font-size: 2rem;
+
+    }
+
+    .icon_dash.active {
+        color: #1fbb68;
+    }
+
+    .icon_dash.inactive {
+        color: #7f7f7f;
+    }
+
+    /* Toggle Switch Styling */
+    .form-switch .form-check-input {
+        width: 2.5em;
+        height: 1.2em;
+        /* margin-left: 0; */
+        background-color: #7f7f7f;
+    }
+
+    .form-switch .form-check-input:checked {
+        background-color: #1fbb68;
+    }
+    .form-check{
+        width: 90px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+
+    .table-custom th, .table-custom td {
+    text-align: center;
+    vertical-align: middle;
+    }
+    .check-icon {
+    color: green;
+    }
+    .cross-icon {
+    color: red;
+    }
+    .asterisk-icon {
+    color: #666;
+    }
+    .protection-card{
+        height: 180px;
+    }
+    a{
+        text-decoration: none;
+        color: white;
+    }
+
+
+/* CSS */
+.button-30 {
+    align-items: center;
+    appearance: none;
+    background-image: radial-gradient(100% 100% at 100% 0, #db2133 0, #e72549 100%);
+    border: 0;
+    border-radius: 6px;
+    box-shadow: rgba(45, 35, 66, .4) 0 2px 4px,rgba(45, 35, 66, .3) 0 7px 13px -3px,rgba(58, 65, 111, .5) 0 -3px 0 inset;
+    box-sizing: border-box;
+    color: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    font-family: "JetBrains Mono",monospace;
+    height: 48px;
+    justify-content: center;
+    line-height: 1;
+    list-style: none;
+    overflow: hidden;
+    padding-left: 16px;
+    padding-right: 16px;
+    position: relative;
+    text-align: left;
+    text-decoration: none;
+    transition: box-shadow .15s,transform .15s;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    white-space: nowrap;
+    will-change: box-shadow,transform;
+    font-size: 18px;
+  }
+  
+  .button-30:focus {
+    box-shadow: #3c4fe0 0 0 0 1.5px inset, rgba(45, 35, 66, .4) 0 2px 4px, rgba(45, 35, 66, .3) 0 7px 13px -3px, #3c4fe0 0 -3px 0 inset;
+  }
+  
+  .button-30:hover {
+    box-shadow: rgba(45, 35, 66, .4) 0 4px 8px, rgba(45, 35, 66, .3) 0 7px 13px -3px, #3c4fe0 0 -3px 0 inset;
+    transform: translateY(-2px);
+  }
+  
+  .button-30:active {
+    box-shadow: #3c4fe0 0 3px 7px inset;
+    transform: translateY(2px);
+  }
+
+.button-29 {
+  align-items: center;
+  appearance: none;
+  background-image:radial-gradient(100% 100% at 100% 0, #5adaff 0, #5468ff 100%);
+  border: 0;
+  border-radius: 6px;
+  box-shadow: rgba(45, 35, 66, .4) 0 2px 4px,rgba(45, 35, 66, .3) 0 7px 13px -3px,rgba(58, 65, 111, .5) 0 -3px 0 inset;
+  box-sizing: border-box;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: "JetBrains Mono",monospace;
+  height: 48px;
+  justify-content: center;
+  line-height: 1;
+  list-style: none;
+  overflow: hidden;
+  padding-left: 16px;
+  padding-right: 16px;
+  position: relative;
+  text-align: left;
+  text-decoration: none;
+  transition: box-shadow .15s,transform .15s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+  will-change: box-shadow,transform;
+  font-size: 18px;
+    }
+
+    .button-29:focus {
+    box-shadow: #3c4fe0 0 0 0 1.5px inset, rgba(45, 35, 66, .4) 0 2px 4px, rgba(45, 35, 66, .3) 0 7px 13px -3px, #3c4fe0 0 -3px 0 inset;
+    }
+
+    .button-29:hover {
+    box-shadow: rgba(45, 35, 66, .4) 0 4px 8px, rgba(45, 35, 66, .3) 0 7px 13px -3px, #3c4fe0 0 -3px 0 inset;
+    transform: translateY(-2px);
+    }
+
+    .button-29:active {
+    box-shadow: #3c4fe0 0 3px 7px inset;
+    transform: translateY(2px);
+    }
+    .cancel-button {
+        background-color: #cd0e0e;
+        color: #fff;
+        border: none;
+        {% comment %} padding: 12px 24px; {% endcomment %}
+        font-size: 16px;
+        cursor: pointer;
+        margin: 10px 5px;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+    }
     </style>
 </head>
-<body>
+<body class="security-body">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark security-navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white fs-4" href="/adminapp/">AntiVirus</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link security-nav-link p-1" href="/adminapp/"><i class="fa-regular fa-x fs-5"></i> </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-<div class="container">
-    <h2>Disk Defragmentation - VirusTotal Scan</h2>
+    <!-- Sidebar and Content Layout -->
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="security-sidebar">
+            <ul class="nav flex-column text-center">
+                <li class="nav-item mb-2">
+                    <a href="/adminapp/" class="nav-link security-link active" data-bs-toggle="tooltip" data-bs-placement="right" title="Security">
+                        <i class="fas fa-shield-alt"></i>
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="" class="nav-link security-link" data-bs-toggle="tooltip" data-bs-placement="right" title="Features">
+                        <i class="fas fa-user-shield"></i>
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="" class="nav-link security-link" data-bs-toggle="tooltip" data-bs-placement="right" title="Performance">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="" class="nav-link security-link" data-bs-toggle="tooltip" data-bs-placement="right" title="More Tools">
+                        <i class="fas fa-tools"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="security-content">
+            <h2>Disk Defragmentation</h2>
     
-    <form id="defragForm" action="/adminapp/Diskfrigmentation/" method="POST">
-        <div class="form-group">
-            <label for="driveLetter">Drive Letter:</label>
-            <input type="text" id="driveLetter" name="drive_letter" placeholder="C:" required>
+    <div class="drive-list">
+        {% for drive in drives %}
+        <div class="drive-item">
+            <input type="checkbox" class="drive-checkbox" name="drive_letters[]" value="{{ drive.drive }}">
+            <div class="drive-info">
+                <strong>{{ drive.drive }}</strong> - {{ drive.free }} GB free of {{ drive.total }} GB
+                <div class="drive-bar">
+                    <div class="drive-bar-filled" style="width: {{ drive.used_percentage }}%;"></div>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <button type="button" onclick="submitDefragForm()">Defragment Disk</button>
-        </div>
-    </form>
+        {% endfor %}
+        
+    </div>
 
-    <div class="result" id="result">
+    <button type="button" class="button-29" onclick="startDefragmentation()">Start Defragmentation</button>
+    <a  href="/adminapp/Diskfrigmentation/"> <button  class="button-30"  >Cancel</button> </a>
+    <div id="result" style="margin-top: 20px;">
         <h3>Scan Result</h3>
         <pre id="resultText"></pre>
     </div>
-</div>
-
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    async function submitDefragForm() {
-        const formData = new FormData(document.getElementById('defragForm'));
-
-        try {
-            const response = await fetch('http://127.0.0.1:8000/adminapp/Diskfrigmentation/', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken')  // Add CSRF token for POST requests
-                }
-            });
-
-            const result = await response.json();
-            alert(result.message);
-        } catch (error) {
-            alert('An error occurred while defragmenting the disk. Please try again.');
-        }
-    }
-
-    async function submitForm() {
+    async function startDefragmentation() {
+        const checkboxes = document.querySelectorAll('.drive-checkbox:checked');
         const formData = new FormData();
-        const fileInput = document.getElementById('fileInput').files[0];
-
-        if (fileInput) {
-            formData.append('file', fileInput);
-        } else {
-            alert('Please provide a disk file to scan.');
-            return;
-        }
-
+    
+        checkboxes.forEach((checkbox) => {
+            formData.append('drive_letter', checkbox.value);
+        });
+    
         try {
-            const response = await fetch('http://127.0.0.1:8000/adminapp/Diskfrigmentation/', {
+            const response = await fetch('/adminapp/Diskfrigmentation/', {
                 method: 'POST',
                 body: formData,
                 headers: {
-                    'X-CSRFToken': getCookie('csrftoken')  // Add CSRF token for POST requests
+                    'X-CSRFToken': getCookie('csrftoken')  // CSRF token for POST requests
                 }
             });
-
+    
             const result = await response.json();
-            
-            document.getElementById('result').style.display = 'block';
-            displayScanResult(result.result.stats);
+            if (result.status === 'success') {
+                // Display the success message
+                document.getElementById('resultText').textContent = result.message;
+            } else {
+                // Display the error message if any
+                document.getElementById('resultText').textContent = 'Error: ' + result.message;
+            }
         } catch (error) {
-            alert('An error occurred while scanning. Please try again.');
+            document.getElementById('resultText').textContent = 'An error occurred while defragmenting the disk. Please try again.';
         }
     }
 
-    function displayScanResult(stats) {
-        const resultText = `
-            Malicious: ${stats.malicious}
-            Suspicious: ${stats.suspicious}
-            Undetected: ${stats.undetected}
-            Harmless: ${stats.harmless}
-            Timeout: ${stats.timeout}
-            Confirmed Timeout: ${stats['confirmed-timeout']}
-            Failure: ${stats.failure}
-            Type Unsupported: ${stats['type-unsupported']}
-        `;
-        document.getElementById('resultText').textContent = resultText;
-    }
-
-    // Function to get CSRF token from the cookie
+    // Function to get CSRF token from cookies
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
