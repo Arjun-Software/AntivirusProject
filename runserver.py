@@ -24,5 +24,5 @@ install_packages()
 server_thread = threading.Thread(target=start_server)
 server_thread.start()
 
-webview.create_window("Antivirus Dashboard", "http://127.0.0.1:8000")
+webview.create_window("Antivirus Dashboard")
 webview.start()

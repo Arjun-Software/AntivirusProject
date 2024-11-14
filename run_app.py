@@ -7,7 +7,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def start_server():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Antivirusproject.settings')
-    execute_from_command_line(['manage.py', 'runserver', '--noreload'])
+    execute_from_command_line(['manage.py', 'runserver', '0.0.0.0:8080', '--noreload'])
+
+
 
 
 
@@ -73,7 +75,7 @@ function styleButton(button) {
 """
 
 def open_webview():
-    window = webview.create_window('Antivirus Dashboard', 'http://127.0.0.1:8000/',width=1200,  height=600, resizable=False  ) 
+    window = webview.create_window('Antivirus Dashboard', 'http://127.0.0.1:8080/',width=1200,  height=600, resizable=False  ) 
     window.events.loaded += lambda: window.evaluate_js(js_navigation_controls)
     webview.start()
 

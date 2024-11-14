@@ -57,7 +57,7 @@
 
         // Send the AJAX request
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'http://127.0.0.1:8000/adminapp/USBscanner/', true);
+        xhr.open('POST', 'http://127.0.0.1:8080/adminapp/USBscanner/', true);
         xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
 
         // Process the streaming response

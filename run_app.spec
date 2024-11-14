@@ -5,7 +5,7 @@ a = Analysis(
     ['run_app.py'],
     pathex=[],
     binaries=[],
-    datas=[('adminapp/templates', 'adminapp/templates'), ('requirements.txt', '.')],
+    datas=[('adminapp/templates', 'adminapp/templates'), ('media/videos', 'media/videos'), ('requirements.txt', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -35,4 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    uac_admin=True,
 )

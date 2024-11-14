@@ -695,42 +695,179 @@ def list_disk_drives():
     return drives
 
 
+import os
+import subprocess
+import time
+  
+# def scan_disk_files(drive_path):
+#     project_dir = os.path.dirname(os.path.abspath(__file__))  # Gets the directory where your script is located
+#     defender_exe = os.path.join(project_dir, "Windows Defender", "MpCmdRun.exe")  # Dynamically builds the path
+#     print("----befor----",defender_exe)
+#     """Scan all files in the disk drive."""
+#     defender_exe = r"C:\Program Files\Windows Defender\MpCmdRun.exe"
+#     nopath = ""
+
+#     for root, dirs, files in os.walk(drive_path):
+#         # Only scan directories that haven't been scanned yet
+#         rootpath = os.path.join(*root.split(os.sep)[:2]).replace("\\", "/").replace(":", ":/").upper()
+
+#         # Skip scanning if the path has already been scanned
+#         if nopath == rootpath:
+#             continue  # Skip the rest of the loop and move to the next root
+
+#         nopath = rootpath
+#         print("Not equal, scanning:", rootpath)
+
+#         # Only scan the directory itself, not individual files
+#         yield f"Scanning directory {rootpath}...\n"
+
+#         try:
+#             # Execute a PowerShell command to scan the entire directory
+#             result = subprocess.run(
+#                 [defender_exe, "-Scan", "-ScanType", "3", "-File", rootpath],
+#                 capture_output=True,
+#                 text=True,
+#                 creationflags=subprocess.CREATE_NO_WINDOW
+#             )
+
+#             # Check the output for the scan status
+#             if "No threats detected" in result.stdout:
+#                 yield f"Scan completed for {rootpath} -> Status: No threats detected\n"
+#             elif "threats detected" in result.stdout:
+#                 yield f"Scan completed for {rootpath} -> Status: Threats detected\n"
+#             else:
+#                 yield f"Scan result for {rootpath}: {result.stdout}\n"
+
+#         except Exception as e:
+#             yield f"Error scanning {rootpath}: {e}\n"
+
+#         # Introduce a small delay between scans (optional, can be adjusted for performance)
+#         time.sleep(1)
+
+
 def scan_disk_files(drive_path):
     """Scan all files in the disk drive."""
+    # project_dir = os.path.dirname(os.path.abspath(__file__))  # Gets the directory where your script is located
+    # defender_exe = os.path.join(project_dir, "Windows Defender", "MpCmdRun.exe")  # Dynamically builds the path
+    defender_exe = r"C:\Program Files\Windows Defender\MpCmdRun.exe"
+    nopath=""
     for root, dirs, files in os.walk(drive_path):
         for file in files:
+            
             file_path = os.path.join(root, file)
-            file_size_mb = os.path.getsize(file_path) / (1024 * 1024)
-            
-            # Skip files larger than 10 MB
-            # if file_size_mb > 10:
-            #     yield f"Skipping {file_path} (Size: {file_size_mb:.2f} MB - exceeds 10 MB limit)\n"
-            #     continue
-
-            yield f"Scanning {file_path}... Size: {file_size_mb:.2f})...\n"
-            
-            # Simulate scan (replace this with actual scan function)
-            scan_result = {"status": "success", "file": file_path}
-            if scan_result["status"] == "success":
-                yield f"Scan completed for {file_path} -> Status: {scan_result['status']}\n"
+            if file_path is None:
+                file_size_mb = '0'
+                pass
             else:
-                yield f"Error scanning {file_path}\n"
+                file_size_mb = os.path.getsize(file_path) / (1024 * 1024)
+           
+            # Get a partial path for comparison
+            rootpath = os.path.join(*root.split(os.sep)[:2]).replace("\\", "/").replace(":", ":/").upper()
+            # Check if nopath and rootpath match
+            if nopath == rootpath or rootpath == "E:/$RECYCLE.BIN":
+                continue  # Skip the rest of the loop and move to the next root
 
-            time.sleep(1)  # Simulate delay between scans
+            else:
+                nopath = rootpath
+                print("Not equal, scanning:", rootpath)
+                yield f"Scanning {rootpath}... Size: {file_size_mb:.2f} MB\n"
+
+                try:
+                    # Execute a PowerShell command to scan the file or directory
+                    result = subprocess.run(
+                        [defender_exe, "-Scan", "-ScanType", "3", "-File", rootpath],
+                        capture_output=True,
+                        text=True,
+                        creationflags=subprocess.CREATE_NO_WINDOW
+                    )
+                    print("---result:",result)
+                    # Check the output for the scan status
+                    if "No threats detected" in result.stdout:
+                        yield f"Scan completed for {file_path} -> Status: No threats detected\n"
+                    elif "threats detected" in result.stdout:
+                        yield f"Scan completed for {file_path} -> Status: Threats detected\n"
+                    else:
+                        yield f"Scan result for {file_path}: {result.stdout}\n"
+
+                except Exception as e:
+                    yield f"Error scanning {file_path}: {e}\n"
+
+            time.sleep(1)
+
+
+
+
+# def scan_disk_files(drive_path):
+#     """Scan all files in the disk drive."""
+#     for root, dirs, files in os.walk(drive_path):
+#         for file in files:
+#             # print("-/-*******",file , "ooooo", drive_path)
+#             file_path = os.path.join(root, file)
+#             print("-/-*******",root,drive_path,file)
+#             file_size_mb = os.path.getsize(file_path) / (1024 * 1024)
+#             nopath =""
+#             rootpath = os.path.join(*root.split(os.sep)[:2]).replace("\\", "/").replace("$", "/").upper()
+#             nopath = rootpath
+#             print("====",rootpath ,nopath)
+#             if nopath == rootpath:
+#                 pass
+#             else:
+#                 print("not equals path ",rootpath)
+#                 yield f"Scanning {file_path}... Size: {file_size_mb:.2f})...\n"
+            
+#                 try:
+#                     # Execute a PowerShell command to scan the file
+#                     result = subprocess.run(
+#                         ["powershell", "-Command", f"Start-MpScan -ScanPath '{rootpath}'"],
+#                         capture_output=True, text=True
+#                     )
+
+#                     # Check the output for the scan status
+#                     if "No threats detected" in result.stdout:
+#                         yield f"Scan completed for {file_path} -> Status: No threats detected\n"
+#                     elif "threats detected" in result.stdout:
+#                         yield f"Scan completed for {file_path} -> Status: Threats detected\n"
+#                     else:
+#                         yield f"Scan result for {file_path}: {result.stdout}\n"
+
+#                 except Exception as e:
+#                     yield f"Error scanning {file_path}: {e}\n"
+
+#             # Skip files larger than 10 MB
+#             # if file_size_mb > 10:
+#             #     yield f"Skipping {file_path} (Size: {file_size_mb:.2f} MB - exceeds 10 MB limit)\n"
+#             #     continue
+
+            
+#             # Simulate delay between scans
+#             time.sleep(1)
+
+
+#             # # Simulate scan (replace this with actual scan function)
+#             # scan_result = {"status": "success", "file": file_path}
+#             # if scan_result["status"] == "success":
+#             #     yield f"Scan completed for {file_path} -> Status: {scan_result['status']}\n"
+#             # else:
+#             #     yield f"Error scanning {file_path}\n"
+
+#             # time.sleep(1)  # Simulate delay between scans
 
 @csrf_exempt
 def scan_disk(request):
     """Start scanning the disk and stream results."""
     if request.method == 'POST':
         disk_drives = list_disk_drives()
-
         if not disk_drives:
             return StreamingHttpResponse("No disk drives detected.", content_type="text/plain")
-
         def scan_and_stream():
             for drive in disk_drives:
-                yield f"Scanning drive: {drive}\n"
-                yield from scan_disk_files(drive)
+                if drive == "C:\\":
+                    print("----if----",drive)
+                    pass
+                else:
+                    print("------else--",drive)
+                    yield f"Scanning drive: {drive}\n"
+                    yield from scan_disk_files(drive)
             yield "Disk scan completed.\n"
 
         return StreamingHttpResponse(scan_and_stream(), content_type="text/plain")
@@ -1758,6 +1895,8 @@ def folderscanAPI(request):
         print("Folder path received:", folder_path)
         
         if folder_path:
+            # project_dir = os.path.dirname(os.path.abspath(__file__))  # Gets the directory where your script is located
+            # defender_exe = os.path.join(project_dir, "Windows Defender", "MpCmdRun.exe")  # Dynamically builds the path
             defender_exe = r"C:\Program Files\Windows Defender\MpCmdRun.exe"
             
             # Check if the defender executable exists
@@ -1811,6 +1950,8 @@ def folderscanAPI(request):
             
             folder_path =  request.POST.get('folder_path')
             # Path to Windows Defender's MpCmdRun executable
+            # project_dir = os.path.dirname(os.path.abspath(__file__))  # Gets the directory where your script is located
+            # defender_exe = os.path.join(project_dir, "Windows Defender", "MpCmdRun.exe")  # Dynamically builds the path
             defender_exe = r"C:\Program Files\Windows Defender\MpCmdRun.exe"
             
             # Check if the defender executable exists

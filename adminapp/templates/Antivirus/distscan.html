@@ -367,7 +367,7 @@
                 isScanning = true;
             
                 scanRequest = $.ajax({
-                    url: 'http://127.0.0.1:8000/adminapp/scan_disk/',
+                    url: 'http://127.0.0.1:8080/adminapp/scan_disk/',
                     type: 'POST',
                     headers: {
                         'X-CSRFToken': getCookie('csrftoken')

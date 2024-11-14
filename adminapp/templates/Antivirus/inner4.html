@@ -125,7 +125,7 @@
         scanButton.textContent = 'Scanning...';
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/adminapp/gamespeedAPI/', {
+            const response = await fetch('http://127.0.0.1:8080/adminapp/gamespeedAPI/', {
                 method: 'POST',
                 body: formData,
                 headers: {
