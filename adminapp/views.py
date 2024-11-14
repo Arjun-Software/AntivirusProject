@@ -10,7 +10,7 @@ import requests
 import os
 import datetime
 import hashlib
-from Antivirusproject.settings import VIRUSTOTAL_API_KEY
+from Antivirusproject.settings import VIRUSTOTAL_API_KEY ,poweBIdb
 from .models import BlockedProgram
 import os
 import shutil
@@ -1155,6 +1155,30 @@ def list_usb_files():
     return usb_files
 
 
+
+def demoUSBscanner(request):
+    if request.method == 'POST':
+        usb_files = list_usb_files()
+        print("*-*-*usb_files*-*-",usb_files)
+        if not usb_files:
+            print("No USB devices detected.")
+            return
+        for file_path in usb_files:
+            file_size_mb = os.path.getsize(file_path) / (1024 * 1024) 
+            if file_size_mb > 10:
+                print(f"Skipping file: {file_path} (Size: {file_size_mb:.2f} MB - exceeds 100 MB limit)")
+                continue
+            print(f"Scanning ----- {file_path}...")
+            scan_result = scan_file_with_virustotal(file_path)
+        return JsonResponse(scan_result)
+    
+    return render(request, 'Antivirus/usb_scanner.html')
+
+
+
+#===========
+from django.http import StreamingHttpResponse
+import time  # To simulate delay between scans for demonstration
 def scan_file_with_virustotal(file_path):
     url = 'https://www.virustotal.com/api/v3/files'
     print("-----",file_path)
@@ -1182,30 +1206,6 @@ def scan_file_with_virustotal(file_path):
         else:
             pass
     return result  # Return the response from VirusTotal
-
-def demoUSBscanner(request):
-    if request.method == 'POST':
-        usb_files = list_usb_files()
-        print("*-*-*usb_files*-*-",usb_files)
-        if not usb_files:
-            print("No USB devices detected.")
-            return
-        for file_path in usb_files:
-            file_size_mb = os.path.getsize(file_path) / (1024 * 1024) 
-            if file_size_mb > 10:
-                print(f"Skipping file: {file_path} (Size: {file_size_mb:.2f} MB - exceeds 100 MB limit)")
-                continue
-            print(f"Scanning ----- {file_path}...")
-            scan_result = scan_file_with_virustotal(file_path)
-        return JsonResponse(scan_result)
-    
-    return render(request, 'Antivirus/usb_scanner.html')
-
-
-
-#===========
-from django.http import StreamingHttpResponse
-import time  # To simulate delay between scans for demonstration
 
 # Function to stream USB file scan results
 @csrf_exempt
@@ -1906,26 +1906,32 @@ def upload_document():
 
 battery_saver_mode = False  # Global variable to track Battery Saver mode status
 
+import psutil
+from django.shortcuts import render
+from django.contrib import messages
+
+# Initialize battery saver mode as False by default
 def battery_status(request):
-    global battery_saver_mode
-    
+    # Ensure that battery_saver_mode is stored in the session
+    if 'battery_saver_mode' not in request.session:
+        request.session['battery_saver_mode'] = False
+
     # Handle POST request to toggle Battery Saver mode
     if request.method == 'POST':
         action = request.POST.get('action')
         if action == 'enable':
-            battery_saver_mode = True
+            request.session['battery_saver_mode'] = True
             messages.success(request, "Battery Saver Mode Enabled.")
         elif action == 'disable':
-            battery_saver_mode = False
+            request.session['battery_saver_mode'] = False
             messages.success(request, "Battery Saver Mode Disabled.")
-    
+
     # Check battery status
     battery = psutil.sensors_battery()
     if battery is None:
         battery_info = "No battery found on this system."
         battery_status = None
         battery_percentage = None
-        status = None
     else:
         battery_percentage = battery.percent
         plugged = battery.power_plugged
@@ -1936,7 +1942,7 @@ def battery_status(request):
         'battery_info': battery_info,
         'battery_percentage': battery_percentage,
         'battery_status': battery_status,
-        'battery_saver_mode': battery_saver_mode
+        'battery_saver_mode': request.session['battery_saver_mode'],
     })
 
 
@@ -2010,3 +2016,56 @@ def stop_scan_api(request):
         stop_scan()  # Stop the ongoing scan
         return JsonResponse({'status': 'Scan stopped successfully'})
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+sl = {
+    "MonthYear": "Oct-24",
+    "Categories": [
+        {
+            "Category": "Standard",
+            "DailyData": [
+                3, 9, 10, 2, 12, 1, 13, 20, 16, 16, 16, 18, 19, 16, 12, 17, 13, 11, 16, 11, 9, 11, 25, 16, 27, 14, 16, 14, 7, 12, 12, 11, 11, 11, 10
+            ],
+            "Total": 409
+        },
+        {
+            "Category": "Deluxe",
+            "DailyData": [
+                3, 2, 3, 2, 2, 1, 6, 7, 8, 7, 9, 5, 9, 5, 13, 10, 11, 8, 11, 12, 16, 16, 16, 20, 16, 32, 20, 16, 14, 16, 14, 11, 10, 10, 7
+            ],
+            "Total": 234
+        },
+        {
+            "Category": "Suite",
+            "DailyData": [
+                12, 12, 14, 1, 14, 4, 4, 4, 15, 1, 29, 1, 26, 11, 7, 4, 20, 6, 11, 28, 28, 28, 28, 43, 31, 12, 12, 37, 30, 18, 41, 23
+            ],
+            "Total": 311
+        }
+    ],
+    "GrandTotal": 954
+}
+
+def poweBI(request):
+    type = request.GET.get('type')
+    print("------",type)
+    bi=[]
+    # poweBIdb.avilable.insert_one(sl)
+    if type == 'Av':
+        data = poweBIdb.avilable.find()
+        for i in  data:
+            i['_id'] = str(i['_id'])
+            del i['_id']
+            bi.append(i) 
+    if type == 'ORT':
+        data = poweBIdb.ORT.find()
+        for i in  data:
+            i['_id'] = str(i['_id'])
+            del i['_id']
+            bi.append(i)  
+    if type == None:
+        data = poweBIdb.pwerBI.find()
+        for i in  data:
+            i['_id'] = str(i['_id'])
+            del i['_id']
+            bi.append(i)
+    return JsonResponse({'data': bi}, status=200)

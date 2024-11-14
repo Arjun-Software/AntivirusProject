@@ -52,6 +52,7 @@ urlpatterns = [
     path('scan-api/', views.scan_api, name='scan_api'),
     path('scan/', views.scan_page, name='scan_page'),
     path('stop-scan-api/', views.stop_scan_api, name='stop_scan_api'),
+    path('poweBI/', views.poweBI, name='poweBI'),
 
 ]
 

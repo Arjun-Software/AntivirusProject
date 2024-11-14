@@ -109,6 +109,10 @@ from pymongo import MongoClient
 client = MongoClient("mongodb+srv://admin:admin123@cluster0.3krnn.mongodb.net/AdminDB?retryWrites=true&w=majority")
 admindb = client.upgov
 
+
+from pymongo import MongoClient
+client = MongoClient("mongodb+srv://admin:admin123@cluster0.3krnn.mongodb.net/AdminDB?retryWrites=true&w=majority")
+poweBIdb = client.poweBIdb
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 

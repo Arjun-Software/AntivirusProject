@@ -1,19 +1,17 @@
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anti-Malware</title>
+    <title>Battery Saver Mode</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <style>
-        .security-body {
-            background-color: #004b68  !important;
-            color: white;
+           /* Global Styles */
+           body {
             font-family: Arial, sans-serif;
-            background-color: #0a3b52;
+            background-color: #f4f7fa;
+            color: #333;
         }
 
         /* Sidebar styling */
@@ -25,224 +23,93 @@
         }
 
         .security-link {
-            color: #ffffff;
-            padding: 20px;
+            color: #ecf0f1;
+            padding: 15px;
+            font-size: 18px;
+            display: block;
+            text-align: center;
+            text-decoration: none;
             border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 25px;
+            margin-bottom: 10px;
         }
 
-        .security-link:hover,
-        .security-link.active {
-            background-color: #004b68;
-            color: #ffffff;
+        .security-link:hover, .security-link.active {
+            background-color: #34495e;
+            color: #fff;
         }
 
         /* Navbar styling */
         .security-navbar {
-            background-color: #0a3b52;
-            border-bottom: 1px solid #444444;
-            padding: 10px 0px;
+            background-color: #2980b9;
+            border-bottom: 1px solid #ddd;
         }
 
         .security-nav-link {
-            color: #ffffff;
+            color: #fff;
+            padding: 10px 15px;
             font-size: 16px;
             display: flex;
             align-items: center;
-            padding: 0 15px;
-        }
-
-        .security-nav-link i {
-            margin-right: 8px;
-            font-size: 18px;
         }
 
         .security-nav-link:hover {
-            color: #cccccc;
+            background-color: #1abc9c;
         }
 
-        /* Main content styling */
+        .security-nav-link i {
+            margin-right: 10px;
+        }
+
+        /* Content Area */
         .security-content {
-            /* background-color: #333; */
-            padding: 20px;
-            flex-grow: 1;
-        }
+          padding: 20px;
+width: 80%;
 
-        .protection-message {
-            background-color: #1e1e1e;
-            padding: 20px;
-            border-radius: 10px;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
         }
-
-        .protection-message button {
-            background-color: #007bff;
-            border: none;
-            color: white;
+        .card {
+            {% comment %} background-color: #004b68; {% endcomment %}
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .btn {
+            font-weight: bold;
             padding: 10px 20px;
             border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .protection-message button:hover {
-            background-color: #0056b3;
-        }
-
-
-
-
-          /* General Styling */
-      
-
-
-
-        /* Header Section */
-        .title-section {
-            background-color: #3b3e47;
-            padding: 15px;
-            border-radius: 8px;
-            /* text-align: center; */
-        }
-
-        .title-section p {
-            font-size: 1.1rem;
-            margin: 0;
-        }
-
-        .title-section small {
-            color: #b3b3b3;
-            font-size: 0.9rem;
-        }
-
-        /* Button Styling */
-        .btn-full-protection {
-            background-color: #3a83f1;
-            color: #ffffff;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 15px;
-            text-align: center;
-        }
-
-        /* Protection Card Styling */
-        .protection-card {
-            /* width: 100%; */
-            background-color: #004B68;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .protection-card h5 {
-            font-size: 1rem;
             margin-top: 10px;
-            margin-bottom: 5px;
-            text-align: center;
         }
-
-        .protection-card p {
-            font-size: 0.85rem;
-            color: #b3b3b3;
-            text-align: center;
-        }
-
-        /* Icon Styles */
-        .icon_dash {
-            font-size: 2rem;
-
-        }
-
-        .icon_dash.active {
-            color: #1fbb68;
-        }
-
-        .icon_dash.inactive {
-            color: #7f7f7f;
-        }
-
-        /* Toggle Switch Styling */
-        .form-switch .form-check-input {
-            width: 2.5em;
-            height: 1.2em;
-            /* margin-left: 0; */
-            background-color: #7f7f7f;
-        }
-
-        .form-switch .form-check-input:checked {
+        .btn-success {
             background-color: #1fbb68;
         }
-        .form-check{
-            width: 90px;
-            margin-left: auto;
-            margin-right: auto;
+        .btn-danger {
+            background-color: #f44336;
         }
-
-
-        .table-custom th, .table-custom td {
-      text-align: center;
-      vertical-align: middle;
-    }
-    .check-icon {
-      color: green;
-    }
-    .cross-icon {
-      color: red;
-    }
-    .asterisk-icon {
-      color: #666;
-    }
-    .protection-card{
-        height: 180px;
-    }
-    a{
-        text-decoration: none;
-        color: white;
-    }
+        .alert {
+            margin-top: 20px;
+        }
     </style>
 </head>
-
 <body>
 
-
-    <body class="security-body">
+    <div class="security-body">
         <!-- Navbar -->
         <nav class="navbar navbar-expand-lg navbar-dark security-navbar">
             <div class="container-fluid">
-                <a class="navbar-brand text-white fs-4" href="/adminapp/">AntiVirus</a>
+                <a class="navbar-brand fs-4" href="/adminapp/">AntiVirus</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <!-- Profile/Account Icon -->
-                       
-                        <!-- Help Icon -->
-                        <!-- <li class="nav-item">
-                            <a class="nav-link security-nav-link" href="#"><i class="fas fa-question-circle"></i> Help</a>
-                        </li> -->
-                      
-                        {% comment %} <li class="nav-item">
-                            <a class="nav-link security-nav-link p-1" href="#"><i class="fa-regular fa-x fs-5"></i> </a>
-                        </li> {% endcomment %}
+                        <li class="nav-item">
+                            <a class="nav-link security-nav-link" href="/adminapp/"><i class="fas fa-home"></i> Home</a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </nav>
     
-    
-        <!-- Sidebar and Content Layout -->
+        <!-- Sidebar -->
         <div class="d-flex">
-            <!-- Sidebar  /OurFetures.html -->
             <div class="security-sidebar">
                 <ul class="nav flex-column text-center">
                     <li class="nav-item mb-2">
@@ -251,175 +118,63 @@
                         </a>
                     </li>
                     <li class="nav-item mb-2">
-                        <a href="/adminapp/" class="nav-link security-link" data-bs-toggle="tooltip" data-bs-placement="right" title="Features">
+                        <a href="/adminapp/get_install_app/" class="nav-link security-link" data-bs-toggle="tooltip" data-bs-placement="right" title="App Manager">
                             <i class="fas fa-user-shield"></i>
                         </a>
                     </li>
-                    <li class="nav-item mb-2">
-                        <a href="#" class="nav-link security-link" data-bs-toggle="tooltip" data-bs-placement="right" title="Performance">
-                            <i class="fas fa-tachometer-alt"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item mb-2">
-                        <a href="#" class="nav-link security-link" data-bs-toggle="tooltip" data-bs-placement="right" title="More Tools">
-                            <i class="fas fa-tools"></i>
-                        </a>
-                    </li>
+                    
                 </ul>
             </div>
     
             <!-- Main Content -->
             <div class="security-content">
-                <div class=" mt-2">
-                    <h1>Battery Status</h1>
-        <div class="card text-dark">
-            <div class="card-body">
-                <h3 class="card-title">Battery Information:</h3>
-                <p class="card-text ">
-                    {% if battery_info %}
-                        {{ battery_info }}
-                    {% else %}
-                        <span class="text-danger">No battery found on this system.</span>
-                    {% endif %}
-                </p>
-                <div id="battery-saver" class="mt-3">
-                    {% if battery_saver_mode %}
-                        <form method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="disable">
-                            <button type="submit" class="btn btn-danger">Disable Battery Saver Mode</button>
-                        </form>
-                    {% else %}
-                        <form method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="enable">
-                            <button type="submit" class="btn btn-success">Enable Battery Saver Mode</button>
-                        </form>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% if messages %}
-            <div class="mt-3">
-                {% for message in messages %}
-                    <div class="alert alert-info">{{ message }}</div>
-                {% endfor %}
-            </div>
-        {% endif %}
-                    
-                    </div>
-                    
-                </div>
+                
+               
+                    <h1>Battery Saver Mode</h1>
             
+                    <div class="card">
+                        <h3 class="card-title">Battery Information:</h3>
+                        <p class="card-text">
+                            {% if battery_info %}
+                                {{ battery_info }}
+                            {% else %}
+                                <span class="text-danger">No battery found on this system.</span>
+                            {% endif %}
+                        </p>
+            
+                        <div id="battery-saver" class="mt-3">
+                            {% if battery_saver_mode %}
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="disable">
+                                    <button type="submit" class="btn btn-danger">Disable Battery Saver Mode</button>
+                                </form>
+                            {% else %}
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="enable">
+                                    <button type="submit" class="btn btn-success">Enable Battery Saver Mode</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+            
+                    {% if messages %}
+                        <div class="mt-3">
+                            {% for message in messages %}
+                                <div class="alert alert-info">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+             
+    
+              
             </div>
         </div>
-    
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script>
-            // Initialize tooltips
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            })
-        </script>
-    </body>
-
-<script>
-    document.getElementById('suggest-cleanup').addEventListener('click', async function () {
-        const button = document.getElementById('suggest-cleanup');
-        button.disabled = true;
-        button.innerText = "Loading...";
-    
-        const driveCheckboxes = document.querySelectorAll('.drive-checkbox:checked');
-        const selectedDrives = Array.from(driveCheckboxes).map(cb => cb.value);
-        if (selectedDrives.length === 0) {
-            alert("Please select at least one drive.");
-            button.disabled = false;
-            button.innerText = "Get Disk Cleanup Suggestions";
-            return;
-        }
-    
-        const resultDiv = document.getElementById('cleanup-results');
-        resultDiv.classList.add('hidden');
-        resultDiv.innerHTML = "Scanning...";
-    
-        try {
-            const response = await fetch(`/adminapp/scan_drive/${selectedDrives.join(',')}/`);
-            const data = await response.json();
-            resultDiv.classList.remove('hidden');
-    
-            // Display suggestions in a table
-            resultDiv.innerHTML = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Select</th>
-                            <th>File Path</th>
-                            <th>Size (MB)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${data.suggestions.map(s => `
-                            <tr>
-                                <td><input type="checkbox" class="file-checkbox" value="${s.file_path}"></td>
-                                <td>${s.file_path}</td>
-                                <td>${s.size_mb.toFixed(2)}</td>
-                            </tr>`).join('')}
-                    </tbody>
-                </table>`;
-    
-            document.getElementById('delete-files').classList.remove('hidden');
-        } catch (error) {
-            resultDiv.innerHTML = "Error: " + error.message;
-        } finally {
-            button.disabled = false;
-            button.innerText = "Get Disk Cleanup Suggestions";
-        }
-    });
-    document.getElementById('delete-files').addEventListener('click', async function () {
-        const fileCheckboxes = document.querySelectorAll('.file-checkbox:checked');
-        const selectedFiles = Array.from(fileCheckboxes).map(cb => cb.value);
-
-        if (selectedFiles.length === 0) {
-            alert("Please select at least one file to delete.");
-            return;
-        }
-
-        const confirmDelete = confirm("Are you sure you want to delete the selected files?");
-        if (!confirmDelete) {
-            return;
-        }
-
-        try {
-            const response = await fetch(`/adminapp/delete_files/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ files: selectedFiles }),
-            });
-
-            if (response.ok) {
-                alert("Files deleted successfully!");
-                document.getElementById('cleanup-results').innerHTML = "";
-                document.getElementById('cleanup-results').classList.add('hidden');
-                document.getElementById('delete-files').classList.add('hidden');
-            } else {
-                alert("Error deleting files: " + await response.text());
-            }
-        } catch (error) {
-            alert("Error: " + error.message);
-        }
-    });
-    // Toggle sidebar visibility
-    document.querySelector('.arrow-button').addEventListener('click', function () {
-        document.querySelector('.sidebar').classList.toggle('collapsed');
-    });
-</script>
-   
+        
+    </div>
    
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
