@@ -1,0 +1,187 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Licence Key Management</title>
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <nav class="sidebar">
+      <a href="http://127.0.0.1:8000/" class="logo">Licence</a>
+      <div class="menu-content">
+        <ul class="menu-items">
+          <li class="item">
+            <a href="/api/active_key">Active Key</a>
+          </li>
+          <li class="item">
+            <a href="/api/expirekey">Expire Key</a>
+          </li>
+          <li class="item">
+            <a href="/api/freekey">Free Key</a>
+          </li>
+          <li class="item">
+            <a href="/api/check_validate_key">Check validate</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <nav class="navbar">
+      <i class="fa-solid fa-bars" id="sidebar-close"></i>
+    </nav>
+   
+    <main class="main container-fluid mt-4">
+      
+      <h2 >Licence Key Validation</h2>
+      <!-- License Key Form -->
+      <form id="validateKeyForm" method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="key_id" class="form-label">Secret Key</label>
+          <input type="text" class="form-control" id="key_id" name="key_id" placeholder="Enter Secret Key" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="licence_key" class="form-label">Licence Key</label>
+          <input type="text" class="form-control" id="licence_key" name="licence_key" placeholder="Enter Licence Key" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Validate Key</button>
+      </form>
+      <div id="validationResult" class="alert mt-3" style="display:none;">
+      <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Key Id</th>
+                <th scope="col">Licence Key</th>
+                <th scope="col">Valid Upto</th>
+                <th scope="col">Key Status</th>
+                <th scope="col">Action</th> <!-- Added for the Download button -->
+            </tr>
+        </thead>
+        <tbody>
+        
+          <tbody id="resultTableBody">
+        </tbody>
+      </table>
+      <p id="secretKeyStatus"></p>
+        <p id="licenseKeyStatus"></p>
+        <select id="statusSelect" style="display: none;">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="expired">Expired</option>
+        </select>
+        <button id="updateStatusButton" class="btn btn-warning" style="display:none;">Update Key Status</button>
+    </div>
+
+
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        // Form submission for validation
+        $('#validateKeyForm').on('submit', function(e) {
+          e.preventDefault();
+    
+          var secretKey = $('#key_id').val();
+          var licenceKey = $('#licence_key').val();
+    
+          // Send data to backend to validate keys
+          $.ajax({
+            url: '/api/validate-license/',  // Adjust to your backend URL
+            method: 'POST',
+            data: {
+              'key_id': secretKey,
+              'licence_key': licenceKey,
+              'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function(response) {
+              console.log("----------",response)
+              // Display the validation result
+              if (response.is_valid) {
+                $('#validationResult').removeClass('alert-danger').addClass('alert-success').show();
+                $('#secretKeyStatus').text("The secret key is valid.");
+                $('#licenseKeyStatus').text(`The licence key status is: ${response.status}`);
+                $('#resultTableBody').html(`
+                <tr>
+                  <td>${response.key_id}</td>
+                  <td>${response.licence_key}</td>
+                  <td>${response.valid_upto}</td>
+                  <td>${response.status}</td>
+                  <td><button class="btn btn-success" onclick="downloadLicenceData(this)">Download</button></td>
+                </tr>
+              `);
+                $('#updateStatusButton').show();
+                
+
+
+    
+                // Populate the select element with the current status
+                $('#statusSelect').val(response.status).show();
+              } else {
+                $('#validationResult').removeClass('alert-success').addClass('alert-danger').show();
+                $('#secretKeyStatus').text("The secret key is not valid.");
+                $('#licenseKeyStatus').text("The licence key is invalid or inactive.");
+                $('#updateStatusButton').hide();
+                $('#resultTableBody').html(`
+                  <tr>
+                    <td colspan="6">The secret key or licence key is invalid or inactive.</td>
+                  </tr>
+                `);
+                $('#statusSelect').hide();
+              }
+            },
+            error: function(error) {
+              console.log(error);
+              $('#validationResult').removeClass('alert-success').addClass('alert-danger').show();
+              $('#secretKeyStatus').text("An error occurred during validation.");
+              $('#resultTableBody').html(`
+                <tr>
+                  <td colspan="6">An error occurred during validation.</td>
+                </tr>
+              `);
+              $('#statusSelect').hide();
+            }
+          });
+        });
+    
+        // Update key status
+        $('#updateStatusButton').on('click', function() {
+          var secretKey = $('#key_id').val();
+          var licenceKey = $('#licence_key').val();
+          var newStatus = $('#statusSelect').val();
+    
+          // Send request to update key status in the database
+          $.ajax({
+            url: '/api/update-key-status/',  // Adjust to your backend URL
+            method: 'POST',
+            data: {
+              'key_id': secretKey,
+              'licence_key': licenceKey,
+              'new_status': newStatus,
+              'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function(response) {
+              if (response.status_updated) {
+                $('#licenseKeyStatus').text(`The licence key status has been updated to: ${response.new_status}`);
+              } else {
+                $('#licenseKeyStatus').text("Failed to update the licence key status.");
+              }
+            },
+            error: function(error) {
+              console.log(error);
+              $('#licenseKeyStatus').text("An error occurred while updating the status.");
+            }
+          });
+        });
+      });
+    </script>
+      
+  </body>
+</html>

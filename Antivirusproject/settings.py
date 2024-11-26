@@ -24,7 +24,8 @@ SECRET_KEY = 'django-insecure-q%otm8@ar8xh_@v1g+4=cas644ziugfer2n0+&p99gwfqljud5
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+TIME_ZONE = 'Asia/Kolkata'
+USE_TZ = True
 ALLOWED_HOSTS = ["*"]
 CORS_ALLOWED_ORIGINS = [
     'chrome-extension://ebbgpdnmnmaonbepjbpahfakmfbcfooc',  # Your extension's origin
@@ -85,33 +86,110 @@ WSGI_APPLICATION = 'Antivirusproject.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         "NAME": "Antivirus",
+#         "USER": "root",
+#         "PASSWORD": "",
+#         "HOST": "127.0.0.1",
+#         "PORT": "3306",
+        
 #     }
 # }
+import socket
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'djongo',
-        'NAME': 'upgov',  # Database name mongodb+srv://admin:<db_password>@cluster0.3krnn.mongodb.net/
-        'CLIENT': {
-            'host': 'mongodb+srv://admin:admin123@cluster0.3krnn.mongodb.net/AdminDB?retryWrites=true&w=majority',
-            'username': 'admin',
-            'password': 'admin123',
+def is_internet_available(host="8.8.8.8", port=53, timeout=3):
+    """
+    Check if an internet connection is available.
+    Default host: Google DNS (8.8.8.8).
+    """
+    try:
+        socket.setdefaulttimeout(timeout)
+        socket.create_connection((host, port))
+        return True
+    except socket.error:
+        return False
+
+
+def is_mysql_available(host="127.0.0.1", port=3306):
+    """
+    Check if the MySQL server is available.
+    """
+    try:
+        socket.create_connection((host, port), timeout=3)
+        return True
+    except socket.error:
+        return False
+    
+
+print("----db----",is_mysql_available())
+if is_internet_available() == True:
+
+    
+    if is_mysql_available() == True:
+
+        print("---internet_connection-")
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.mysql",
+                "NAME": "Vmare_virus",
+                "USER": "root",
+                "PASSWORD": "",
+                "HOST": "127.0.0.1",
+                "PORT": "3306",
+        
+            },
+            'sqlite3': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.ARJUN',
+                }
+            }
+    else:
+         print("---------------------------",is_mysql_available())
+         DATABASES ={
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.ARJUN',
+            },
+            'sqlite3': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.ARJUN',
+                }
+            
         }
+else:
+    print("----not connection---")
+    DATABASES = {
+        'sqlite3': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.ARJUN',
+        }
+        
     }
-}
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'djongo',
+#         'NAME': 'upgov',  # Database name mongodb+srv://admin:<db_password>@cluster0.3krnn.mongodb.net/
+#         'CLIENT': {
+#             'host': 'mongodb+srv://admin:admin123@cluster0.3krnn.mongodb.net/AdminDB?retryWrites=true&w=majority',
+#             'username': 'admin',
+#             'password': 'admin123',
+#         }
+#     }
+# }
+ENCRYPTION_KEY = b'MVfR7f46-y2erBj6p4BnPLTXFwElxHBoUJh9MmH9JmY='
+
 VIRUSTOTAL_API_KEY = "671dfacd7749ba03ecb03588d14fb56ffba18a33473bf9c6f416113e939d3850"
 
-from pymongo import MongoClient
-client = MongoClient("mongodb+srv://admin:admin123@cluster0.3krnn.mongodb.net/AdminDB?retryWrites=true&w=majority")
-admindb = client.upgov
+# from pymongo import MongoClient
+# client = MongoClient("mongodb+srv://admin:admin123@cluster0.3krnn.mongodb.net/AdminDB?retryWrites=true&w=majority")
+# admindb = client.upgov
 
 
-from pymongo import MongoClient
-client = MongoClient("mongodb+srv://admin:admin123@cluster0.3krnn.mongodb.net/AdminDB?retryWrites=true&w=majority")
-poweBIdb = client.poweBIdb
+# from pymongo import MongoClient
+# client = MongoClient("mongodb+srv://admin:admin123@cluster0.3krnn.mongodb.net/AdminDB?retryWrites=true&w=majority")
+# poweBIdb = client.poweBIdb
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 

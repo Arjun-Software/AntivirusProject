@@ -1,8 +1,11 @@
+physical_address = "None"
+from pickle import GLOBAL
 from pyexpat.errors import messages
+from datetime import datetime 
 import subprocess
 import tempfile
 from tkinter import Tk, filedialog
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.http import JsonResponse
 import psutil
 from rest_framework.views import APIView
@@ -10,8 +13,8 @@ import requests
 import os
 import datetime
 import hashlib
-from Antivirusproject.settings import VIRUSTOTAL_API_KEY ,poweBIdb
-from .models import BlockedProgram
+from Antivirusproject.settings import VIRUSTOTAL_API_KEY ,is_mysql_available
+from .models import *
 import os
 import shutil
 from django.http import JsonResponse
@@ -21,9 +24,172 @@ from django.conf import settings
 import win32api
 import base64
 import json
+from .serializers import *
 from django.core.files.storage import default_storage
+from cryptography.fernet import Fernet
 QUARANTINE_DIR = settings.QUARANTINE_DIR
 # Create your views here.
+import base64
+from Crypto.Cipher import AES
+import hashlib
+import uuid  # To get the MAC address
+import socket
+import uuid
+
+# Define encryption key (must be 16, 24, or 32 bytes for AES)
+ENCRYPTION_KEY = hashlib.sha256(b"your-secret-key").digest()
+
+# Padding helper functions
+def pad(data):
+    block_size = AES.block_size
+    padding = block_size - len(data) % block_size
+    return data + (chr(padding) * padding)
+
+def unpad(data):
+    return data[:-ord(data[-1])]
+
+# Deterministic encryption
+def encrypt(data):
+    """Encrypt the data deterministically."""
+    if not data:
+        return None
+    cipher = AES.new(ENCRYPTION_KEY, AES.MODE_ECB)
+    padded_data = pad(data)
+    encrypted_bytes = cipher.encrypt(padded_data.encode())
+    return base64.urlsafe_b64encode(encrypted_bytes).decode()
+
+# Decrypt method
+def decrypt(encrypted_data):
+    """Decrypt the deterministically encrypted data."""
+    if not encrypted_data:
+        return None
+    cipher = AES.new(ENCRYPTION_KEY, AES.MODE_ECB)
+    encrypted_bytes = base64.urlsafe_b64decode(encrypted_data.encode())
+    decrypted_padded_data = cipher.decrypt(encrypted_bytes).decode()
+    return unpad(decrypted_padded_data)
+
+
+def is_internet_available(host="8.8.8.8", port=53, timeout=3):
+    """
+    Check if an internet connection is available.
+    Default host: Google DNS (8.8.8.8).
+    """
+    try:
+        socket.setdefaulttimeout(timeout)
+        socket.create_connection((host, port))
+        return True
+    except socket.error:
+        return False
+    
+def get_system_ip_and_mac():
+    try:
+        # Get the system's IP address
+        hostname = socket.gethostname()
+        ip_address = socket.gethostbyname(hostname)
+
+        # Get the MAC address
+        mac_address = '-'.join(['{:02X}'.format((uuid.getnode() >> elements) & 0xFF) 
+                                for elements in range(0, 8 * 6, 8)])
+
+        return {"IP Address": ip_address, "MAC Address": mac_address}
+    except Exception as e:
+        return {"Error": str(e)}
+    
+physical_address = get_system_ip_and_mac().get("MAC Address")
+# Example usage
+system_info = get_system_ip_and_mac()
+
+print("IP Address:", system_info.get("IP Address"))
+print("MAC Address:", system_info.get("MAC Address"))
+
+def get_mac_address():
+    # Retrieves the MAC address of the system\
+    mac =  ':'.join(['{:02x}'.format((uuid.getnode() >> elements) & 0xff) 
+                                for elements in range(0, 2 * 6, 8)][::-1])
+    print("----------",mac)
+    return ':'.join(['{:02x}'.format((uuid.getnode() >> elements) & 0xff) for elements in range(0, 2*6, 8)][::-1])
+print("=-=-=",get_mac_address())
+
+@csrf_exempt
+def Authentication(request):
+    if request.method == 'POST':
+        key_id = request.POST.get('key_id').strip()
+        licence_key = request.POST.get('licence_key').strip()
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        system_info = get_system_ip_and_mac()
+        mac_address = system_info.get("MAC Address")
+        if not key_id or not licence_key:
+            
+            return HttpResponse("Key ID and Licence Key are required.", status=400)
+        from datetime import datetime
+        if is_internet_available() == True:
+            # p-y13lCrTWahcYSztGFUomd1G96HIQxwSS--TD56pYa5nJOgUR-5HP9WiCXpPmoLr3juHyfGeJle3B6rWKtL9w==
+            # p-y13lCrTWahcYSztGFUomd1G96HIQxwSS--TD56pYa5nJOgUR-5HP9WiCXpPmoLr3juHyfGeJle3B6rWKtL9w==
+            print("----",request.POST)
+            existing_license = LicenceKey.objects.filter(key_id=key_id).first()
+            print("========",existing_license)
+            if existing_license is not None:
+                print("========",existing_license.licence_key)
+                existing_license.key_id = key_id
+                existing_license.licence_key = encrypt(licence_key)
+                existing_license.first_name = encrypt(first_name)
+                existing_license.last_name = encrypt(last_name)
+                existing_license.phone = encrypt(phone)
+                existing_license.mac_address = mac_address
+                existing_license.registered_on = datetime.now()
+                existing_license.key_status = "Active"
+                existing_license.save()
+                return redirect('index')
+            else:
+            
+                return render(request,'Antivirus/index.html' , {'error_message': 'Please Enter Your Valied Credential.'})
+                # return redirect('index')
+        else:
+            print("-------no internet------")
+            existing_license = LicenceKey.objects.filter(mac_address=physical_address).first()
+            return render(request, 'Antivirus/index.html',{'existing_license':existing_license , 'error_message': 'No internet connection available.'})
+        
+    elif request.method == 'GET':
+    
+        # If it's a GET request, render the page with the existing_license data
+        existing_license = LicenceKey.objects.filter(mac_address=mac_address).first()
+        
+        # Pass the license information to the template
+        license_data = {}
+        if existing_license:
+            license_data = {
+                'mac_address': decrypt(existing_license.mac_address),
+                'key_id': decrypt(existing_license.key_id),
+                'licence_key': decrypt(existing_license.licence_key),
+                'first_name': decrypt(existing_license.first_name),
+                'last_name': decrypt(existing_license.last_name),
+                'phone': decrypt(existing_license.phone),
+            }
+
+        return render(request, 'your_template.html', {'existing_license': license_data})
+
+    elif request.method == 'DELETE':
+        mac_address = request.GET.get('mac_address')  # Assuming you pass mac_address as a query parameter
+        
+        if not mac_address:
+            return JsonResponse({"error": "MAC address is required to delete the license."}, status=400)
+
+        # Find the license by mac_address
+        # existing_license = LicenceKey.objects.db[''].filter(mac_address=mac_address).first()
+        existing_license = LicenceKey.objects.using('sqlite3').filter(mac_address=mac_address).first()
+
+        
+        if not existing_license:
+            return JsonResponse({"error": "No license found for this MAC address."}, status=404)
+
+        # Delete the license
+        existing_license.delete()
+
+        return JsonResponse({"message": "License deleted successfully."}, status=200)
+
+    return HttpResponse("Invalid request method.", status=405)
 
 
 
@@ -161,7 +327,6 @@ def get_available_drives(request):
     drives = win32api.GetLogicalDriveStrings()
     print("=========",drives)
     drive_list = [drive for drive in drives.split('\\') if drive]  # List of drives like ['C:\\', 'D:\\']
-    print("--------",drive_list)
     return JsonResponse({'drives': drive_list})
 
 def scan_drive_for_cleanup(request, drive):
@@ -175,7 +340,6 @@ def scan_drive_for_cleanup(request, drive):
                     file_size = os.path.getsize(file_path)
                     # Suggest files larger than 100 MB
                     if file_size > 100 * 1024 * 1024:  # 100 MB
-                        print("-------file_path",file_path)
                         suggestions.append({
                             'file_path': file_path,
                             'size_mb': file_size / (1024 * 1024),  # Size in MB
@@ -314,7 +478,6 @@ class testfilescanAPI(APIView):
             print("----",response['data']['id'])
             re = "https://www.virustotal.com/api/v3/files/"+"NTI4MTA1ZjU1MmQzZWVmODMxMmMwY2Q1ZGViODAzMWY6MTcyNzE4NjU1Nw=="#"https://www.virustotal.com/api/v3/files/"+id
             re = requests.get(re, headers=headers)
-            # print("----------------",re.json())
             success_message = response_messages("success", response,200)
             return JsonResponse(success_message, safe=False, status=200)
         except Exception as e:
@@ -447,7 +610,6 @@ class demofilescanAPI(APIView):
             if file_info_response.status_code != 200:
                 return JsonResponse({"message": file_info_response.json().get("error", "Unknown error")}, status=file_info_response.status_code)
 
-            # print("----------------", file_info_response.json())
             success_message = response_messages("success", response_json, 200)
             return JsonResponse(success_message, safe=False, status=200)
         
@@ -512,10 +674,60 @@ URL_REPORT_API = 'https://www.virustotal.com/vtapi/v2/url/report'
 FILE_SCAN_API = 'https://www.virustotal.com/vtapi/v2/file/scan'
 FILE_REPORT_API = 'https://www.virustotal.com/vtapi/v2/file/report'
 
+# db = 
 
 def index(request):
-    return render(request,'Antivirus/index.html')
+    if is_internet_available() == True:
+        # existing_license = LicenceKey.objects.filter(mac_address=physical_address).first()
+        existing_license = LicenceKey.objects.using('sqlite3').filter(mac_address=physical_address).first()
+        print("=======",existing_license)
+        # Pass the license information to the template
+        license_data = {}
+        if existing_license is not None:
+            license_data = {
+                'mac_address': existing_license.mac_address,
+                'key_id': existing_license.key_id,
+                'licence_key': decrypt(existing_license.licence_key),
+                'first_name': decrypt(existing_license.first_name),
+                'last_name': decrypt(existing_license.last_name),
+                'phone': decrypt(existing_license.phone),
+                'registered_on': existing_license.registered_on,
+            }
+        else:
+            license_data=None
+        return render(request,'Antivirus/index.html' ,{'existing_license':license_data})
+    else:
+        existing_license = LicenceKey.objects.using('sqlite3').filter(mac_address=physical_address).first()
+        print("=======",existing_license)
+        return render(request,'Antivirus/index.html' ,{'existing_license':existing_license})
 
+def loginwithky(request):
+    if request.method == 'POST':
+        key_id = request.POST.get('key_id')
+        licence_key = request.POST.get('licence_key')
+        try:
+            print("request.POST.get",request.POST)
+            key_record = LicenceKey.objects.filter(key_id=key_id,licence_key=licence_key)
+            if key_record :
+                print("-----",key_record)
+                serializer = LicenceKeySerializer(key_record, many=True)
+                licence_data_with_days = []
+                for licence in serializer.data:
+                    valid_upto_date = datetime.strptime(licence['valid_upto'], '%Y-%m-%d').date()
+                    days_remaining = (valid_upto_date - datetime.now().date()).days
+                    licence['days_remaining'] = days_remaining  # Add field to the serialized data
+                    licence_data_with_days.append(licence)  # Append updated data to a new list
+                return render(request, 'admin/dashboard.html' , {'licence_data':licence_data_with_days})
+            else:
+                return render(request, 'checkkey.html',{'error':'Invalid Licence Key'})
+
+        
+        except LicenceKey.DoesNotExist:
+            return render(request, 'admin/admin.html', {'error':"Invalid key id or licence key"})
+        
+    else:
+        return render(request, 'checkkey.html')
+  
 
 def urlindex(request):
     """Handles URL and file scanning via the web interface."""
@@ -540,7 +752,6 @@ def urlindex(request):
         # File Scanning Logic
         elif 'file' in request.FILES:
             uploaded_file = request.FILES['file']
-            print("-----------",uploaded_file)
             files = {'file': (uploaded_file.name, uploaded_file.read())}
             params = {'apikey': API_KEY}
             
@@ -899,7 +1110,6 @@ def scan_urlbrowser(request):
             url_to_scan = data.get('url')
             if not url_to_scan:
                 return JsonResponse({'error': 'No URL provided'}, status=400)
-            print("-------",url_to_scan)
             # Submit the URL for scanning
             params = {'apikey': API_KEY, 'url': url_to_scan}
             scan_response = requests.post(SCAN_URL_API, data=params)
@@ -1249,7 +1459,6 @@ class Diskfrigmentation(APIView):
         drive_letter = request.POST.get('drive_letter') # Default to C: if no drive selected
         try:
             # For Windows OS
-            print("-------",drive_letter)
             if os.name == 'nt':  # Check if the OS is Windows
                 command = ['defrag', drive_letter, '/O', '/M']  # Defragment with optimization and multi-threading
                 result = subprocess.run(command, check=True, capture_output=True, text=True)
@@ -1471,106 +1680,6 @@ def manage_quarantined_file(request):
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-#  block firewall
-# def get_blocked_programs():
-#     return BlockedProgram.objects.all()
-from Antivirusproject.settings import admindb
-from pymongo.errors import DuplicateKeyError
-# firewall
-def configure_firewall(request):
-    message = None
-    if request.method == 'POST':
-        action = request.POST.get('action')  # 'allow' or 'block'
-        program_path = request.POST.get('program_path')  # Program path from form input
-        Data = {
-            "program_path": program_path,
-            "blocked_at": datetime.datetime.today()
-        }
-
-        if not action or not program_path:
-            message = 'Invalid parameters. Please provide both action and program path.'
-        else:
-            try:
-                if action == 'allow':
-                    subprocess.run(f"netsh advfirewall firewall add rule name='AntivirusProject' dir=in action=allow program={program_path} enable=yes", shell=True, check=True)
-                    message = f"Allowed {program_path} through the firewall."
-                
-                elif action == 'block':
-                    # Check if the program is already blocked
-                    print("-----program_path--",program_path)
-                    existing_program = admindb.adminapp_blockedprogram.find_one({"program_path": Data['program_path']})
-                    
-                    if existing_program is not None:
-                        message = f"{program_path} is already blocked."
-                    else:
-                        admindb.adminapp_blockedprogram.insert_one(Data)
-                        subprocess.run(f"netsh advfirewall firewall add rule name='AntivirusProject' dir=in action=block program={program_path} enable=yes", shell=True, check=True)
-                        message = f"Blocked {program_path} in the firewall."
-                
-                else:
-                    message = 'Invalid action. Use "allow" or "block".'
-            except subprocess.CalledProcessError as e:
-                message = f"Error while configuring firewall: {str(e)}"
-            except DuplicateKeyError:
-                message = f"{program_path} is already in the blocked list."
-            except Exception as e:
-                message = f"An unexpected error occurred: {str(e)}"
-
-    # Include blocked programs in the context
-    sl = []
-    get_data = admindb.adminapp_blockedprogram.find()
-    for i in get_data:
-        i['iid'] = str(i['_id'])
-        del i['_id']
-        sl.append(i)
-
-    return render(request, 'Antivirus/firewall.html', {'message': message, 'blocked_programs': sl})
-
-
-# def configure_firewall(request):
-#     if request.method == 'POST':
-#         action = request.POST.get('action')  # 'allow' or 'block'
-#         program_path = request.POST.get('program_path')  # Program path from form input
-
-#         if not action or not program_path:
-#             return render(request, 'firewall.html', {'message': 'Invalid parameters'})
-
-#         try:
-#             if action == 'allow':
-#                 subprocess.run(f"netsh advfirewall firewall add rule name='AntivirusProject' dir=in action=allow program={program_path} enable=yes", shell=True)
-#                 message = f"Allowed {program_path} through the firewall."
-#             elif action == 'block':
-#                 subprocess.run(f"netsh advfirewall firewall add rule name='AntivirusProject' dir=in action=block program={program_path} enable=yes", shell=True)
-#                 message = f"Blocked {program_path} in the firewall."
-#             else:
-#                 message = 'Invalid action. Use "allow" or "block".'
-#         except subprocess.CalledProcessError as e:
-#             message = f"Error: {str(e)}"
-        
-#         return render(request, 'Antivirus/firewall.html', {'message': message})
-
-#     return render(request, 'Antivirus/firewall.html')
-
-
-# import elevate
-
-# def disable_windows_defender():
-#     try:
-#         # Request elevated permissions
-#         elevate.elevate()  # This will prompt for admin access
-
-#         # Disable Windows Defender via Registry (Admin access needed)
-#         subprocess.run([
-#             "reg", "add", "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender", 
-#             "/v", "DisableAntiSpyware", "/t", "REG_DWORD", "/d", "1", "/f"
-#         ], check=True)
-#         print("Windows Defender disabled.")
-#     except subprocess.CalledProcessError as e:
-#         print(f"Error occurred: {e}")
-
-# disable_windows_defender()
-
-
 import subprocess
 from django.http import HttpResponse
 
@@ -1711,7 +1820,6 @@ def get_browser_connections():
                 continue
     
     return urls
-print("-------",get_browser_connections())
 if __name__ == "__main__":
     active_urls = get_browser_connections()
     print("Active HTTP and HTTPS network connections made by browsers:")
@@ -1740,7 +1848,7 @@ def get_chrome_history():
         print("Chrome is currently running, please close it to access the history file.")
         return []
     
-print("---ds",get_chrome_history)
+
 
 
 import subprocess
@@ -1886,7 +1994,7 @@ def select_folder(request):
             return JsonResponse({"folder_path": folder_path})
         else:
             return JsonResponse({"error": "No folder selected."}, status=400)
-from datetime import datetime     
+    
 def folderscanAPI(request):
     if request.method == 'GET':
         folder_path = request.GET.get('folder_path')
@@ -2188,7 +2296,6 @@ sl = {
 
 def poweBI(request):
     type = request.GET.get('type')
-    print("------",type)
     bi=[]
     # poweBIdb.avilable.insert_one(sl)
     if type == 'Av':

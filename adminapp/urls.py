@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 urlpatterns = [
     path('', views.index, name='index'),
+    # path("",views.loginwithky, name="home"),
     # path('index/', views.index, name='index'),  # Web interface route
     
     path('scan-file/', views.scan_file, name='scan_file'),
@@ -37,7 +38,6 @@ urlpatterns = [
     path('filescan/', views.file_scan_and_quarantine, name='file_scan_and_quarantine'),
     path('quarantine/list/', views.list_quarantined_files, name='list_quarantined_files'),
     path('quarantine/manage/', views.manage_quarantined_file, name='manage_quarantined_file'),
-    path('firewall/', views.configure_firewall, name='configure_firewall'),
     path('defenderscan_file/', views.defenderscan_file, name='defenderscan_file'),
     path('DefenderAPI/', views.DefenderAPI.as_view(), name='defender_actions'),
     path('scan_results_view/', views.scan_results_view, name='scan_results_view'),
@@ -53,6 +53,7 @@ urlpatterns = [
     path('scan/', views.scan_page, name='scan_page'),
     path('stop-scan-api/', views.stop_scan_api, name='stop_scan_api'),
     path('poweBI/', views.poweBI, name='poweBI'),
+    path('Authentication/', views.Authentication, name='Authentication'),
 
 ]
 

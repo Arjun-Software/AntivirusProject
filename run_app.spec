@@ -5,7 +5,7 @@ a = Analysis(
     ['run_app.py'],
     pathex=[],
     binaries=[],
-    datas=[('adminapp/templates', 'adminapp/templates'), ('media/videos', 'media/videos'), ('requirements.txt', '.')],
+    datas=[('adminapp/templates', 'adminapp/templates'), ('adminapp/static', 'adminapp/static'), ('requirements.txt', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
